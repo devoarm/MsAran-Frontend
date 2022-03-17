@@ -29,9 +29,14 @@
                       <span class="card-text">{{ form.id_card }}</span>
                     </div>
                     <div class="mb-1">
-                      <b-badge :variant="form.hi_type == 'กำลังรักษา'? 'warning':'success'"><h5 class="mb-0 text-white">{{ form.hi_type }}</h5> </b-badge> 
-                      <br/>                     
-                      <br/>                     
+                      <b-badge
+                        :variant="
+                          form.hi_type == 'กำลังรักษา' ? 'warning' : 'success'
+                        "
+                        ><h5 class="mb-0 text-white">{{ form.hi_type }}</h5>
+                      </b-badge>
+                      <br />
+                      <br />
                       <span class="card-text">
                         น้ำหนัก : {{ form.weight }} ส่วนสูง : {{ form.height
                         }}<br />
@@ -45,7 +50,7 @@
 
               <b-col cols="12" xl="6">
                 <table class="mt-2 mt-xl-0 w-100">
-                   <tr>
+                  <tr>
                     <th class="pb-50">
                       <feather-icon icon="UsersIcon" class="mr-75" />
                       <span class="font-weight-bold">เพศ</span>
@@ -98,21 +103,29 @@
                 </table>
               </b-col>
               <div class="d-flex flex-wrap">
-                <router-link :to="'/covid19-visit-add/' + uId">
+                <router-link :to="'/covid19-visit-add/' + uId" class="mx-1">
                   <b-button variant="outline-primary">
                     <feather-icon icon="EditIcon" class="mr-50" />
                     <span class="align-middle">บันทึกการรักษา</span>
                   </b-button>
                 </router-link>
-                <router-link :to="'/covid19-edit-hi/' + uId">
+                <router-link :to="'/covid19-edit-hi/' + uId" class="mx-1">
                   <b-button variant="outline-warning">
                     <feather-icon icon="EditIcon" class="mr-50" />
                     <span class="align-middle">แก้ไขข้อมูล</span>
                   </b-button>
                 </router-link>
-                <b-button variant="outline-danger" @click="delHi">
+                <b-button variant="outline-danger" @click="delHi" class="mx-1">
                   <feather-icon icon="Trash2Icon" class="mr-50" />
                   <span class="align-middle">ลบข้อมูล</span>
+                </b-button>
+                <b-button
+                  variant="outline-success"
+                  @click="createPDF"
+                  class="mx-1"
+                >
+                  <feather-icon icon="FileTextIcon" class="mr-50" />
+                  <span class="align-middle">พิมพ์ใบรับรองแพทย์</span>
                 </b-button>
               </div>
             </b-row>
@@ -127,6 +140,11 @@
         </b-table>
       </b-card-code>
     </div>
+    <b-img
+      src="@/assets/images/covid/certiportCovid19.png"
+      fluid
+      alt="Responsive image"
+    ></b-img>
   </div>
 </template>
 
@@ -136,6 +154,7 @@ import {
   BRow,
   BCol,
   BForm,
+  BImg,
   BFormGroup,
   BFormInput,
   BFormRadioGroup,
@@ -151,11 +170,15 @@ import flatPickr from "vue-flatpickr-component";
 import { ref } from "@vue/composition-api";
 import vSelect from "vue-select";
 import useJwt from "@/auth/jwt/useJwt";
+import jsPDF from "jspdf";
+import font from "@/service/font";
+import imageCertiport from "@/assets/images/covid/certiportCovid19.png";
 
 export default {
   components: {
     BTable,
     BRow,
+    BImg,
     BCol,
     BForm,
     BFormFile,
@@ -170,7 +193,6 @@ export default {
     BFormCheckboxGroup,
     BButton,
     BFormSelect,
-    
   },
   data() {
     return {
@@ -254,9 +276,43 @@ export default {
     this.getHi();
   },
   methods: {
+    async createPDF() {
+      let pdfName = "test";
+      var doc = new jsPDF("p", "mm", "a4");
+      var width = doc.internal.pageSize.getWidth();
+      var height = doc.internal.pageSize.getHeight();
+      doc.addFileToVFS("THSarabunNew-normal.ttf", font);
+      doc.addFont("THSarabunNew-normal.ttf", "THSarabunNew", "normal");
+      doc.setFont("THSarabunNew");
+      doc.setFontSize(12);
+      //คนกรอก
+      doc.text(this.form.fullname, 65, 37); //ชื่อ-นามสกุล
+      doc.text(this.form.cid, 65, 46); //เลขบัตร
+      // doc.text(`${this.form.addrpart} ${this.form.tmbpart} ${this.form.addrpart} ${this.form.chwpart}`, 62, 55); //สถานที่อยู่
+      doc.text(this.form.hospcode, 120, 72); //ชื่อสถานพยาบาล
+      doc.text(this.form.vstdate, 43, 79); //เมื่อวันที่
+      doc.text("Community isolation", 124, 86); //Community isolation
+      doc.text("ภายใต้การดูแล", 70, 92); //ภายใต้การดูแล
+      // doc.text(this.form.vstdate, 120, 92); //ระหว่าง
+      // doc.text(this.form.dcdate, 148, 92); //ถึง
+      doc.text("รวม", 191, 92); //รวม
+      doc.text("ประวัติอื่นที่สำคัญ", 45, 99); // ประวัติอื่นที่สำคัญ
+      //แพทย์กรอก
+      doc.text(this.form.hospcode, 50, 134); //สถานที่ตรวจ
+      // doc.text("-", 134, 134); //วันที่
+      // doc.text("-", 152, 134); //เดือน
+      // doc.text("-", 188, 134); //ปี
+      doc.text(this.form.hospcode, 67, 147); //ปฏิบัติงานภายใต
+      doc.text(this.form.fullname, 154, 147); //ขอรับรองวา
+
+
+      doc.addImage(imageCertiport, "PNG", 0, 0, width, height);
+      window.open(doc.output("bloburl", { pdfName: pdfName }), "_blank");
+    },
     delHi() {
       this.$http.delete(`api/v1/covid/hi/${this.uId}`).then((res) => {
         if (res.data.status == 200) {
+          console.log(res.data)
           this.$swal({
             icon: "success",
             title: "สำเร็จ",
