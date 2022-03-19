@@ -92,14 +92,14 @@
 
             <!-- submit button -->
             <b-button block type="submit" variant="primary">
-              Set New Password
+              ตั้งรหัสผ่านใหม่
             </b-button>
           </b-form>
         </validation-observer>
 
         <p class="text-center mt-2">
           <b-link :to="{ name: 'auth-login-v1' }">
-            <feather-icon icon="ChevronLeftIcon" /> Back to login
+            <feather-icon icon="ChevronLeftIcon" /> ย้อนกลับ
           </b-link>
         </p>
       </b-card>

@@ -210,8 +210,13 @@ export default {
   },
   methods: {
     updateUser() {
-      this.$refs.simpleRules.validate().then((success) => {
+      this.$refs.simpleRules.validate().then((success) => {        
         if (success) {
+          if(this.user.role == "User"){
+            this.user.organigation = this.user.organigation.hoscode
+          } else{
+            this.user.organigation = "0"
+          }
           let data = {
             username: this.user.username,
             firstname: this.user.firstname,
@@ -219,7 +224,7 @@ export default {
             email: this.user.email,
             phone: this.user.phone,
             role: this.user.role,
-            organigation: this.user.organigation.hoscode,
+            organigation: this.user.organigation,
           };
           this.$http.put(`api/v1/auth/${this.uId}`, data).then((res) => {
             if (res.data.status == 200) {
