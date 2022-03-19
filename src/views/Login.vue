@@ -3,7 +3,12 @@
     <b-row class="auth-inner m-0">
       <!-- Brand logo-->
       <b-link class="brand-logo">
-        <vuexy-logo />
+        <b-img
+          :src="appLogoImage"
+          alt="logo"
+          width="40"          
+          height="25"          
+        />
         <h2 class="brand-text text-primary ml-1">MSAranHos</h2>
       </b-link>
       <!-- /Brand logo-->
@@ -136,7 +141,7 @@ import router from "@/router";
 import { getHomeRouteForLoggedInUser } from "@/auth/utils";
 import useJwt from "@/auth/jwt/useJwt";
 import { ValidationProvider, ValidationObserver } from "vee-validate";
-
+import { $themeConfig } from '@themeConfig'
 export default {
   components: {
     BRow,
@@ -167,6 +172,14 @@ export default {
       required,
       email,
     };
+  },
+   setup() {
+    // App Name
+    const { appName, appLogoImage } = $themeConfig.app
+    return {
+      appName,
+      appLogoImage,
+    }
   },
   computed: {
     passwordToggleIcon() {

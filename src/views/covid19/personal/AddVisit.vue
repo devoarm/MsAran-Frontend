@@ -30,13 +30,14 @@
           </b-col>
 
           <!-- Field: Username ค้นหาผู้ป่วยด้วย cid หรือชื่อ-->
-          <b-col cols="12" md="4">
+          <b-col cols="12" md="6" lg="4">
             <b-form-group label="ผู้ป่วย" abel-for="id">
               <v-select
                 v-model="form.id"
                 :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
-                label="title"
-                :options="ob_person"
+                label="fullname"
+                :options="ob_person"          
+                key="id"      
               />
             </b-form-group>
           </b-col>
@@ -64,17 +65,6 @@
           <b-col cols="12" md="4">
             <b-form-group label="บันทึกการรักษา" label-for="note">
               <b-form-input v-model="form.note" />
-            </b-form-group>
-          </b-col>
-
-          <b-col cols="12" md="4">
-            <b-form-group label="ผู้ประเมิน" label-for="provid">
-              <v-select
-                v-model="form.provid"
-                :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
-                label="title"
-                :options="ob_provid"
-              />
             </b-form-group>
           </b-col>
         </b-row>
@@ -118,10 +108,10 @@ import {
   BFormSelect,
 } from "bootstrap-vue";
 import flatPickr from "vue-flatpickr-component";
-import { ref } from "@vue/composition-api";
 import vSelect from "vue-select";
-import VueSweetalert2 from "vue-sweetalert2";
-import "sweetalert2/dist/sweetalert2.min.css";
+import {  
+  getUserData,  
+} from "@/auth/utils";
 
 export default {
   components: {
@@ -142,6 +132,7 @@ export default {
   },
   data() {
     return {
+      user:{},
       form: {
         vstdate: "",
         period: "",
@@ -178,13 +169,8 @@ export default {
     };
   },
   mounted() {
-    this.$http.get("api/v1/forms/person").then((res) => {
-      res.data.result.forEach((element) => {
-        this.ob_person.push({
-          title: element.fullname,
-          value: element.id,
-        });
-      });
+    this.$http.get(`api/v1/forms/person-by-hoscode/${getUserData().organigation}/${getUserData().role}`).then((res) => {
+      this.ob_person = res.data.result
       console.log(this.ob_person);
     });
     this.$http.get("api/v1/forms/provid").then((res) => {
@@ -194,7 +180,7 @@ export default {
           value: element.id,
         });
       });
-    });
+    });    
   },
   methods: {
     onFileChange(e) {
@@ -202,14 +188,22 @@ export default {
       this.file = file;
       this.url = URL.createObjectURL(file);
     },
-    handleSubmit() {
-      let formData = new FormData();
-      formData.append("data", JSON.stringify(this.form));
-      console.log(this.form);
+    handleSubmit() {      
+      var data = {
+        vstdate: this.form.vstdate,
+        period: this.form.period,
+        id: this.form.id.id,
+        bt: this.form.bt,
+        O2sat: this.form.O2sat,
+        medication: this.form.medication,
+        note: this.form.note,
+        provid: getUserData().id,
+      }
+      // console.log(data);
       this.$http
-        .post(`api/v1/covid/hi-add-visit`, formData)
+        .post(`api/v1/covid/hi-add-visit`, data)
         .then((res) => {
-          if (res.data.msg == "Ok") {
+          if (res.data.status == 200) {
             this.$swal({
               icon: "success",
               title: "บันทึกสำเร็จ",
@@ -219,9 +213,16 @@ export default {
               this.$router.push("/covid19-personal-account");
             });
           }
-          console.log(res.data);
-        })
-        .catch((err) => console.log(err));
+          else{
+            this.$swal({
+              icon: "error",
+              title: "ไม่สำเร็จ",
+              text: "ผิดพลาด",
+              showConfirmButton: true,              
+            }).then(() => {              
+            });
+          }          
+        }).catch((err) => {console.log(err)})      
     },
 
     getHi() {

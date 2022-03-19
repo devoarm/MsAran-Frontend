@@ -5,9 +5,13 @@
       <b-card class="mb-0">
         <!-- logo -->
         <b-link class="brand-logo">
-          <vuexy-logo />
-
-          <h2 class="brand-text text-primary ml-1">Vuexy</h2>
+          <b-img
+          :src="appLogoImage"
+          alt="logo"
+          width="40"          
+          height="25"          
+        />
+          <h2 class="brand-text text-primary ml-1">MsAranhos</h2>
         </b-link>
 
         <b-card-title class="mb-1"> เปลี่ยนรหัสผ่าน 🔒 </b-card-title>
@@ -122,11 +126,14 @@ import {
   BLink,
   BFormInput,
   BButton,
+  BImg
 } from "bootstrap-vue";
 import { required } from "@validations";
 import ToastificationContent from "@core/components/toastification/ToastificationContent.vue";
+import { $themeConfig } from '@themeConfig'
 
 export default {
+  
   components: {
     VuexyLogo,
     BCard,
@@ -141,6 +148,15 @@ export default {
     BInputGroupAppend,
     ValidationProvider,
     ValidationObserver,
+    BImg
+  },
+  setup() {
+    // App Name
+    const { appName, appLogoImage } = $themeConfig.app
+    return {
+      appName,
+      appLogoImage,
+    }
   },
   data() {
     return {

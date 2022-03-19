@@ -94,7 +94,7 @@
             />
           </template>
           <template #cell(hospcode)="data">
-            <b-badge variant="warning" v-if="!data.value"> กรุณาเลือกหน่วยบริการ </b-badge>
+            <b-badge variant="warning" v-if="!data.value"> กรุณาระบุหน่วยบริการ </b-badge>
           </template>
         </b-table>
       </b-col>

@@ -12,13 +12,13 @@
             </div>
             <b-row>
               <b-col
-                cols="21"
-                xl="6"
+                cols="12"
+                xl="5"
                 class="d-flex justify-content-between flex-column"
               >
                 <div class="d-flex justify-content-start">
                   <b-avatar
-                    class="mr-3"
+                    class="mr-2"
                     rounded="sm"
                     size="120px"
                     :src="$store.state.service.urlImage + form.image"
@@ -52,28 +52,28 @@
                 <table class="mt-2 mt-xl-0 w-100">
                   <tr>
                     <th class="pb-50">
-                      <feather-icon icon="UsersIcon" class="mr-75" />
+                      <feather-icon icon="UsersIcon" class="mr-2" />
                       <span class="font-weight-bold">เพศ</span>
                     </th>
                     <td class="pb-50">{{ form.sex }}</td>
                   </tr>
                   <tr>
                     <th class="pb-50">
-                      <feather-icon icon="SunIcon" class="mr-75" />
+                      <feather-icon icon="SunIcon" class="mr-2" />
                       <span class="font-weight-bold">วันเกิด</span>
                     </th>
                     <td class="pb-50">{{ form.birthday }}</td>
                   </tr>
                   <tr>
                     <th class="pb-50">
-                      <feather-icon icon="PhoneIcon" class="mr-75" />
+                      <feather-icon icon="PhoneIcon" class="mr-2" />
                       <span class="font-weight-bold">Mobile</span>
                     </th>
                     <td class="pb-50 text-capitalize">{{ form.mobile }}</td>
                   </tr>
                   <tr>
                     <th class="pb-50">
-                      <feather-icon icon="StarIcon" class="mr-75" />
+                      <feather-icon icon="StarIcon" class="mr-2" />
                       <span class="font-weight-bold">ที่อยู่รักษา</span>
                     </th>
                     <td class="pb-50 text-capitalize">
@@ -83,22 +83,21 @@
                       จ.{{ form.chwpart }}
                     </td>
                   </tr>
-
                   <tr>
                     <th class="pb-50">
-                      <feather-icon icon="CheckIcon" class="mr-75" />
+                      <feather-icon icon="CheckIcon" class="mr-2" />
                       <span class="font-weight-bold">สิทธิการรักษา</span>
                     </th>
-                    <td class="pb-50">{{ form.pttype_name }}</td>
+                    <td class="pb-50 text-capitalize">{{ form.pttype_name }}</td>
                   </tr>
                   <tr>
                     <th>
-                      <feather-icon icon="FlagIcon" class="mr-75" />
+                      <feather-icon icon="FlagIcon" class="mr-2" />
                       <span class="font-weight-bold"
                         >หน่วยการบริการที่ดูแล</span
                       >
                     </th>
-                    <td>{{ form.hospcode }}</td>
+                    <td class="pb-50 text-capitalize">{{ form.hospcode }}</td>
                   </tr>
                 </table>
               </b-col>
@@ -123,6 +122,7 @@
                   variant="outline-success"
                   @click="createPDF"
                   class="mx-1"
+                  v-if="form.hi_type == 'รักษาแล้ว'"
                 >
                   <feather-icon icon="FileTextIcon" class="mr-50" />
                   <span class="align-middle">พิมพ์ใบรับรองแพทย์</span>
@@ -272,8 +272,9 @@ export default {
 
     this.$http.get(`api/v1/covid/hi-by-id/${this.uId}`).then((res) => {
       this.form = res.data;
+      console.log(this.form)
     });
-    this.getHi();
+    this.getVisit();
   },
   methods: {
     async createPDF() {
@@ -294,15 +295,15 @@ export default {
       doc.text(`${this.form.addrpart} ต.${this.form.tmbpart} อ.${this.form.amppart} จ.${this.form.chwpart}`, 123, 86); //Community isolation
       (this.form.dcdate!=null? doc.text(this.form.hospcode, 70, 92):doc.text("", 70, 92)) //ภายใต้การดูแล
       doc.text(this.form.vstdate, 120, 92); //ระหว่าง
-      (this.form.dcdate!=null? doc.text(this.form.dcdate, 148, 92):doc.text("", 148, 92)) //ถึง
+      (this.form.dcdate!=null? doc.text(this.form.dcdate, 144, 92):doc.text("", 144, 92)) //ถึง
       doc.text("", 191, 92); //รวม
       doc.text("", 45, 99); // ประวัติอื่นที่สำคัญ
       //แพทย์กรอก
-      // doc.text(this.form.hospcode, 50, 134); //สถานที่ตรวจ
-      // doc.text("-", 134, 134); //วันที่
+      doc.text('โรงพยาบาลอรัญประเทศ', 50, 134); //สถานที่ตรวจ
+      // doc.text(this.form.vstdate, 134, 134); //วันที่
       // doc.text("-", 152, 134); //เดือน
       // doc.text("-", 188, 134); //ปี
-      // doc.text(this.form.hospcode, 65, 147); //ปฏิบัติงานภายใต
+      doc.text(this.form.hospcode, 65, 147); //ปฏิบัติงานภายใต
       doc.text(this.form.fullname, 154, 147); //ขอรับรองวา
 
 
@@ -331,7 +332,7 @@ export default {
         }
       });
     },
-    getHi() {
+    getVisit() {
       this.$http
         .get(`api/v1/covid/visit-by-id/${this.uId}`, {
           headers: {
@@ -340,8 +341,8 @@ export default {
         })
         .then((res) => {
           console.log(res.data);
-          // this.itemes = res.data;
-          // this.totalRows = res.data.length;
+          this.itemes = res.data;
+          this.totalRows = res.data.length;
         });
     },
     info(item, index, button) {

@@ -5,7 +5,12 @@
       <b-card class="mb-0">
         <b-link class="brand-logo">
           <!-- logo -->
-          <vuexy-logo />
+          <b-img
+          :src="appLogoImage"
+          alt="logo"
+          width="40"          
+          height="25"          
+        />
 
           <h2 class="brand-text text-primary ml-1">MsAranhos</h2>
         </b-link>
@@ -59,6 +64,7 @@
 <script>
 import { ValidationProvider, ValidationObserver } from "vee-validate";
 import VuexyLogo from "@core/layouts/components/Logo.vue";
+import { $themeConfig } from '@themeConfig'
 import {
   BCard,
   BLink,
@@ -68,6 +74,7 @@ import {
   BFormInput,
   BForm,
   BButton,
+  BImg
 } from "bootstrap-vue";
 import { required, email } from "@validations";
 
@@ -82,8 +89,17 @@ export default {
     BFormInput,
     BButton,
     BForm,
+    BImg,
     ValidationProvider,
     ValidationObserver,
+  },
+     setup() {
+    // App Name
+    const { appName, appLogoImage } = $themeConfig.app
+    return {
+      appName,
+      appLogoImage,
+    }
   },
   data() {
     return {
