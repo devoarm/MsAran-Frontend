@@ -1,42 +1,72 @@
+<template lang="">
+  <div>
+    <b-card-code title="สถานะการณ์ Home Isolation 📣" no-body>
+      <canvas id="myChart" width="100" height="30"></canvas>
+    </b-card-code>
+  </div>
+</template>
 <script>
-import { Bar } from "vue-chartjs";
-
+import BCardCode from "@core/components/b-card-code/BCardCode.vue";
 export default {
-  extends: Bar,
+  components: { BCardCode },
   data() {
     return {
-      chartData: "",
+      labels: [],
+      data_set: [],
     };
   },
-  created() {
-     this.$http
-      .get("api/v1/covid/chart_hi", {
-        headers: {
-          Authorization: `Bearer ${useJwt.getToken()}`,
-        },
-      })
-      .then((res) => {
-        let result = res.data;
-        let chartLable = [];
-        let Data = [];
-        result.forEach((value) => {
-          chartLable.push(value.hosname ? value.hosname : "");
-          Data.push(value.total);
-        });
-        this.chartData = {
-          labels: label,
-          datasets: [
+  mounted() {
+    var ctx = document.getElementById("myChart");
+    this.barChart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: this.labels,
+        datasets: [
+          {
+            label: "จำนวน", //Vergangenheit = Past
+            data: this.data_set,
+            backgroundColor: "#28dac6",
+            borderColor: "transparent",
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        responsiveAnimationDuration: 0,
+        maintainAspectRatio: true,
+        aspectRatio: 2,
+        oneResie: null,
+        scales: {
+          yAxes: [
             {
-              data: data,
-              backgroundColor: "#28dac6",
-              borderColor: "transparent",
+              ticks: {
+                beginAtZero: true,
+              },
             },
           ],
-        };
-      });
+        },
+      },
+    });
   },
-  mounted() {
-    this.renderChart(this.chartData);
+  created: function () {
+    this.getMessages(); // get all messages automatically when the page is loaded
+  },
+  methods: {
+    getMessages: function () {
+      this.$http.get("api/v1/covid/chart_hi").then((res) => {
+        // let labels =[];
+        // let data_set =[];
+        for (let [labels, value] of Object.entries(res.data)) {
+          this.labels.push(value.hosname);
+          this.data_set.push(value.total);
+        }
+        this.$nextTick(function () {
+          this.barChart.update();
+        });
+      });
+    },
   },
 };
 </script>
+<style lang=""></style>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-card title="รายงาน HI 📣">
-    <canvas id="myChart" width="100" height="30"></canvas>
+    <hi-chart/>
     </b-card>
     <b-card title="Kick start your project 🚀">
       <b-card-text>All the best for your new project.</b-card-text>
@@ -35,12 +35,13 @@
 import { BCard, BCardText, BLink } from "bootstrap-vue";
 import Vue from "vue";
 import Chart from "chart.js";
-
+import HiChart from "@/views/covid19/personal/components/BarChart.vue"
 export default {
   components: {
     BCard,
     BCardText,
     BLink,
+    HiChart
   },
 
 data(){
@@ -53,62 +54,6 @@ data(){
   }
 },
 
-  mounted: function() {
-    var ctx = document.getElementById("myChart");
-    this.barChart = new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels: this.labels,
-        datasets: [
-          {
-            label: "จำนวน", //Vergangenheit = Past
-            data: this.data_set,
-            backgroundColor: "#28dac6",
-            borderColor: "transparent",
-            borderWidth: 1
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        responsiveAnimationDuration: 0,
-        maintainAspectRatio: true,
-        aspectRatio: 2,
-        oneResie: null,
-        scales: {
-          yAxes: [
-            {
-              ticks: {
-                beginAtZero: true
-              }
-            }
-          ]
-        }
-      }
-    });
-  },
-  created: function() {
-    this.getMessages(
-      console.log(this.labels),
-    
-    ); // get all messages automatically when the page is loaded
-  },
-  methods: {
-    getMessages: function() {this.$http
-        .get("api/v1/covid/chart_hi")
-        .then(res => {
-          console.log(res.data);
-          let result = res.data;
-          for (let [labels, value] of Object.entries(res.data)) {
-            this.labels.push(labels.hosname);
-            this.data_set.push(value.total);
-          }
-          this.$nextTick(function() {
-            this.barChart.update();
-          });
-        });
-    }
-  }
 
 };
 </script>

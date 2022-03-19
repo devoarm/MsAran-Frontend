@@ -33,21 +33,14 @@
         <b-row>
           <!-- Field: Username -->
           <b-col cols="12" md="4">
-            <b-form-group label="cid" label-for="cid">
-              <b-form-input v-model="form.cid" name="cid"/>
+            <b-form-group label="เลขบัตรประชาชน" label-for="cid">
+              <b-form-input v-model="form.cid" name="cid" />
             </b-form-group>
           </b-col>
           <!-- Field: Username -->
           <b-col cols="12" md="4">
             <b-form-group label="ชื่อ-นามสกุล" label-for="fullname">
               <b-form-input v-model="form.fullname" />
-            </b-form-group>
-          </b-col>
-
-          <!-- Field: Full Name -->
-          <b-col cols="12" md="4">
-            <b-form-group label="เลขบัตรประชาชน" label-for="full-name">
-              <b-form-input v-model="form.id_card" placeholder="Enter Number Only"/>
             </b-form-group>
           </b-col>
 
@@ -82,7 +75,10 @@
           <!-- Field: Email -->
           <b-col cols="12" md="4">
             <b-form-group label="เลขหมายโทรศัพท์" label-for="phone">
-              <b-form-input v-model="form.mobile" placeholder="Enter Number Only"/>
+              <b-form-input
+                v-model="form.mobile"
+                placeholder="Enter Number Only"
+              />
             </b-form-group>
           </b-col>
         </b-row>
@@ -156,26 +152,42 @@
           <!-- Field: Postcode -->
           <b-col cols="12" md="6" lg="4">
             <b-form-group label="น้ำหนัก(kg)">
-              <b-form-input type="number" v-model="form.weight" placeholder="Enter Number Only"/>
+              <b-form-input
+                type="number"
+                v-model="form.weight"
+                placeholder="Enter Number Only"
+              />
             </b-form-group>
           </b-col>
           <b-col cols="12" md="6" lg="4">
             <b-form-group label="ส่วนสูง(cm)">
-              <b-form-input type="number" v-model="form.height" placeholder="Enter Number Only"/>
+              <b-form-input
+                type="number"
+                v-model="form.height"
+                placeholder="Enter Number Only"
+              />
             </b-form-group>
           </b-col>
 
           <!-- Field: City -->
           <b-col cols="12" md="6" lg="4">
             <b-form-group label="ความดัน(ตัวบน/ตัวล่าง)">
-              <b-form-input type="number" v-model="form.bp" placeholder="Enter Number Only"/>
+              <b-form-input
+                type="number"
+                v-model="form.bp"
+                placeholder="Enter Number Only"
+              />
             </b-form-group>
           </b-col>
 
           <!-- Field: State -->
           <b-col cols="12" md="6" lg="4">
             <b-form-group label="อัตราการหายใจ(ครั้งต่อนาที)">
-              <b-form-input type="number" v-model="form.pr" placeholder="Enter Number Only"/>
+              <b-form-input
+                type="number"
+                v-model="form.pr"
+                placeholder="Enter Number Only"
+              />
             </b-form-group>
           </b-col>
 
@@ -292,7 +304,6 @@ export default {
       form: {
         cid: "",
         fullname: "",
-        id_card:"",
         sex: "",
         image: "",
         birthday: "",
@@ -364,16 +375,32 @@ export default {
       let formData = new FormData();
       formData.append("file", this.file);
       formData.append("data", JSON.stringify(this.form));
-
+      console.log(this.form)
       this.$http
         .post(`api/v1/covid/hi-add-patient-avatar`, formData)
         .then((res) => {
-          console.log(res.data);
+          if (res.data.status == 200) {
+            this.$swal({
+              icon: "success",
+              title: "สำเร็จ",
+              showConfirmButton: false,
+              timer: 1000,
+            }).then(() => {
+              this.$router.push("/covid19-personal-account");
+            });
+          } else {
+            this.$swal({
+              icon: "error",
+              title: "เพิ่มข้อมูลไม่สำเร็จ",
+              showConfirmButton: false,
+              timer: 1000,
+            });
+          }
         })
         .catch((err) => console.log(err));
     },
 
-    async fetchAMP() {      
+    async fetchAMP() {
       await this.$http
         .get(`api/v1/forms/district-by-province/${this.form.chwpart.value}`)
         .then((res) => {
@@ -385,14 +412,16 @@ export default {
             });
           });
         });
-      await this.$http.get(`api/v1/forms/c_hospital/${this.form.chwpart.value}`).then((res) => {
-        res.data.result.forEach((element) => {
-          this.ob_hospital.push({
-            title: element.hosname,
-            value: element.hoscode,
+      await this.$http
+        .get(`api/v1/forms/c_hospital/${this.form.chwpart.value}`)
+        .then((res) => {
+          res.data.result.forEach((element) => {
+            this.ob_hospital.push({
+              title: element.hosname,
+              value: element.hoscode,
+            });
           });
         });
-      });
     },
     fetchTMB() {
       this.$http
@@ -415,4 +444,3 @@ export default {
 @import "@core/scss/vue/libs/vue-flatpicker.scss";
 @import "@core/scss/vue/libs/vue-select.scss";
 </style>
-

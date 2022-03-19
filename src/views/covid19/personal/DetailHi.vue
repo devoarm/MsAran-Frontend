@@ -140,11 +140,11 @@
         </b-table>
       </b-card-code>
     </div>
-    <b-img
+    <!-- <b-img
       src="@/assets/images/covid/certiportCovid19.png"
       fluid
       alt="Responsive image"
-    ></b-img>
+    ></b-img> -->
   </div>
 </template>
 
@@ -288,21 +288,21 @@ export default {
       //คนกรอก
       doc.text(this.form.fullname, 65, 37); //ชื่อ-นามสกุล
       doc.text(this.form.cid, 65, 46); //เลขบัตร
-      // doc.text(`${this.form.addrpart} ${this.form.tmbpart} ${this.form.addrpart} ${this.form.chwpart}`, 62, 55); //สถานที่อยู่
-      doc.text(this.form.hospcode, 120, 72); //ชื่อสถานพยาบาล
+      doc.text(`${this.form.addrpart} ต.${this.form.tmbpart} อ.${this.form.amppart} จ.${this.form.chwpart}`, 62, 55); //สถานที่อยู่
+      doc.text("", 120, 72); //ชื่อสถานพยาบาล
       doc.text(this.form.vstdate, 43, 79); //เมื่อวันที่
-      doc.text("Community isolation", 124, 86); //Community isolation
-      doc.text("ภายใต้การดูแล", 70, 92); //ภายใต้การดูแล
-      // doc.text(this.form.vstdate, 120, 92); //ระหว่าง
-      // doc.text(this.form.dcdate, 148, 92); //ถึง
-      doc.text("รวม", 191, 92); //รวม
-      doc.text("ประวัติอื่นที่สำคัญ", 45, 99); // ประวัติอื่นที่สำคัญ
+      doc.text(`${this.form.addrpart} ต.${this.form.tmbpart} อ.${this.form.amppart} จ.${this.form.chwpart}`, 123, 86); //Community isolation
+      (this.form.dcdate!=null? doc.text(this.form.hospcode, 70, 92):doc.text("", 70, 92)) //ภายใต้การดูแล
+      doc.text(this.form.vstdate, 120, 92); //ระหว่าง
+      (this.form.dcdate!=null? doc.text(this.form.dcdate, 148, 92):doc.text("", 148, 92)) //ถึง
+      doc.text("", 191, 92); //รวม
+      doc.text("", 45, 99); // ประวัติอื่นที่สำคัญ
       //แพทย์กรอก
-      doc.text(this.form.hospcode, 50, 134); //สถานที่ตรวจ
+      // doc.text(this.form.hospcode, 50, 134); //สถานที่ตรวจ
       // doc.text("-", 134, 134); //วันที่
       // doc.text("-", 152, 134); //เดือน
       // doc.text("-", 188, 134); //ปี
-      doc.text(this.form.hospcode, 67, 147); //ปฏิบัติงานภายใต
+      // doc.text(this.form.hospcode, 65, 147); //ปฏิบัติงานภายใต
       doc.text(this.form.fullname, 154, 147); //ขอรับรองวา
 
 
@@ -340,8 +340,8 @@ export default {
         })
         .then((res) => {
           console.log(res.data);
-          this.itemes = res.data;
-          this.totalRows = res.data.length;
+          // this.itemes = res.data;
+          // this.totalRows = res.data.length;
         });
     },
     info(item, index, button) {

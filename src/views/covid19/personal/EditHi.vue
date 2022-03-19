@@ -39,7 +39,7 @@
         <b-row>
           <!-- Field: Username -->
           <b-col cols="12" md="4">
-            <b-form-group label="cid" label-for="cid">
+            <b-form-group label="เลขบัตรประชาชน" label-for="cid">
               <b-form-input v-model="form.cid" name="cid" />
             </b-form-group>
           </b-col>
@@ -47,13 +47,6 @@
           <b-col cols="12" md="4">
             <b-form-group label="ชื่อ-นามสกุล" label-for="fullname">
               <b-form-input v-model="form.fullname" />
-            </b-form-group>
-          </b-col>
-
-          <!-- Field: Full Name -->
-          <b-col cols="12" md="4">
-            <b-form-group label="เลขบัตรประชาชน" label-for="full-name">
-              <b-form-input v-model="form.id_card" />
             </b-form-group>
           </b-col>
 
@@ -297,8 +290,7 @@ export default {
       url: null,
       form: {
         cid: "",
-        fullname: "",
-        id_card: "",
+        fullname: "",        
         sex: "",
         image: "",
         birthday: "",
@@ -416,15 +408,18 @@ export default {
       this.url = URL.createObjectURL(file);
     },
     handleSubmit() {
-      console.log(this.form);
-      console.log(this.file);
+      if(this.form.hospcode == null) this.form.hospcode = {value:""}
+      if(this.form.pttype_name == null) this.form.hospcode = {value:""}
+      if(this.form.tmbpart == null) this.form.hospcode = {value:""}
+      if(this.form.amppart == null) this.form.hospcode = {value:""}
+      if(this.form.chwpart == null) this.form.hospcode = {value:""}        
       let formData = new FormData();
       formData.append("file", this.file);
       formData.append("data", JSON.stringify(this.form));
       this.$http
         .put(`/api/v1/covid/hi-edit/${this.uId}`, formData)
-        .then((res) => {
-          if (res.data.msg == "Ok") {
+        .then((res) => {          
+          if (res.data.status == 200) {
             this.$swal({              
               icon: "success",
               title: "สำเร็จ",

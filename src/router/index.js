@@ -234,6 +234,22 @@ const router = new VueRouter({
       },
     },
     {
+      path: "/detail-user/:id",
+      name: "detail-user",
+      component: () => import("@/views/users/ReadUser.vue"),
+      meta: {
+        pageTitle: "ข้อมูลบัญชีผุ้ใช้",
+      },
+    },
+    {
+      path: "/users-edit-user/:id",
+      name: "edit-user",
+      component: () => import("@/views/users/EditUser.vue"),
+      meta: {
+        pageTitle: "ข้อมูลบัญชีผุ้ใช้",
+      },
+    },
+    {
       path: "/covid19-personal-account",
       name: "covid19-personal-account",
       component: () => import("@/views/covid19/personal/HiHome.vue"),
@@ -299,6 +315,22 @@ const router = new VueRouter({
       },
     },
     {
+      path: "/forgot-password",
+      name: "forgot-password",
+      component: () => import("@/views/authentication/ForgotPassword.vue"),
+      meta: {
+        layout: "full",
+      },
+    },
+    {
+      path: "/reset-password/:token",
+      name: "reset-password",
+      component: () => import("@/views/authentication/ResetPassword.vue"),
+      meta: {
+        layout: "full",
+      },
+    },
+    {
       path: "/error-404",
       name: "error-404",
       component: () => import("@/views/error/Error404.vue"),
@@ -315,6 +347,8 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   const isLoggedIn = isUserLoggedIn();
+  if (to.name == "forgot-password") return next();
+  if (to.name == "reset-password") return next();
   if (to.name !== "auth-login" && !isLoggedIn) next({ name: "auth-login" });
   if (to.name == "auth-login" && isLoggedIn) next({ name: "home" });
   // Redirect if logged in

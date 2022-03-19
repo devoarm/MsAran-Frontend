@@ -1,1 +1,1 @@
-export const urlImages = "http://localhost:3000/"
+export const urlImages = "http://localhost:3030/"

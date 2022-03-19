@@ -24,8 +24,10 @@
       >
         <template #button-content>
           <div class="d-sm-flex d-none user-nav">
-            <p class="user-name font-weight-bolder mb-0">{{user.firstname+" "+user.lastname}}</p>
-            <span class="user-status">{{user.role}}</span>
+            <p class="user-name font-weight-bolder mb-0">
+              {{ user.firstname + " " + user.lastname }}
+            </p>
+            <span class="user-status">{{ user.role }}</span>
           </div>
           <b-avatar
             size="40"
@@ -36,25 +38,11 @@
             badge-variant="success"
           />
         </template>
-
         <b-dropdown-item link-class="d-flex align-items-center">
-          <feather-icon size="16" icon="UserIcon" class="mr-50" />
-          <span>Profile</span>
-        </b-dropdown-item>
-
-        <b-dropdown-item link-class="d-flex align-items-center">
-          <feather-icon size="16" icon="MailIcon" class="mr-50" />
-          <span>Inbox</span>
-        </b-dropdown-item>
-
-        <b-dropdown-item link-class="d-flex align-items-center">
-          <feather-icon size="16" icon="CheckSquareIcon" class="mr-50" />
-          <span>Task</span>
-        </b-dropdown-item>
-
-        <b-dropdown-item link-class="d-flex align-items-center">
-          <feather-icon size="16" icon="MessageSquareIcon" class="mr-50" />
-          <span>Chat</span>
+          <b-link :to="`detail-user/${user.id}`">
+            <feather-icon size="16" icon="UserIcon" class="mr-50" />
+            <span>ข้อมูลส่วนตัว</span>
+          </b-link>
         </b-dropdown-item>
 
         <b-dropdown-divider />
@@ -82,7 +70,7 @@ import {
 } from "bootstrap-vue";
 import DarkToggler from "@core/layouts/components/app-navbar/components/DarkToggler.vue";
 import router from "@/router";
-import useJwt from '@/auth/jwt/useJwt'
+import useJwt from "@/auth/jwt/useJwt";
 
 export default {
   components: {
@@ -104,20 +92,19 @@ export default {
   },
   data() {
     return {
-      user:{}
-    }
+      user: {},
+    };
   },
   mounted() {
-    this.user = JSON.parse(localStorage.getItem('userData'))
-    
+    this.user = JSON.parse(localStorage.getItem("userData"));
   },
   methods: {
     isLogout() {
       localStorage.removeItem("accessToken");
 
       // Remove userData from localStorage
-      localStorage.removeItem("userData");      
-      
+      localStorage.removeItem("userData");
+
       // Redirect to login page
       this.$router.push({ path: "/login" });
     },

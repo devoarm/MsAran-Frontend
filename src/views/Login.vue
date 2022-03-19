@@ -22,7 +22,7 @@
       <b-col lg="4" class="d-flex align-items-center auth-bg px-2 p-lg-5">
         <b-col sm="8" md="6" lg="12" class="px-xl-2 mx-auto">
           <b-card-title title-tag="h2" class="font-weight-bold mb-1">
-            Welcome to MsAranhos! 👋
+            ยินดีต้อนรับสู่ ระบบMsAranhos! 👋
           </b-card-title>
 
           <!-- form -->
@@ -50,15 +50,15 @@
               <b-form-group>
                 <div class="d-flex justify-content-between">
                   <label for="login-password">รหัสผ่าน</label>
-                  <b-link :to="{ name: 'auth-forgot-password-v2' }">
-                    <small>Forgot Password?</small>
+                  <b-link :to="{ name: 'forgot-password' }">
+                    <small>ลืมรหัสผ่าน?</small>
                   </b-link>
                 </div>
                 <validation-provider
                   #default="{ errors }"
                   name="Password"
                   vid="password"
-                  rules="required|min:8"
+                  rules="required"
                 >
                   <b-input-group
                     class="input-group-merge"

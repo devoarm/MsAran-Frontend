@@ -138,6 +138,14 @@
                   :options="option"
                 />
               </b-form-group>
+              <b-form-group label="สถานที่บริการ" v-if="selected == 'User'">
+                <v-select
+                  v-model="selHos"
+                  label="hosname"
+                  :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
+                  :options="optHos"
+                />
+              </b-form-group>
             </b-form>
           </validation-observer>
         </b-modal>
@@ -159,42 +167,13 @@
       :filter="filter"
       :filter-included-fields="filterOn"
       @filtered="onFiltered"
+      @row-clicked="myRowClickHandler"
     >
-     <template #cell(role)="data">
+      <template #cell(role)="data">
         <b-badge :variant="[data.value === 'User' ? 'success' : 'warning']">
-          {{data.value}}
+          {{ data.value }}
         </b-badge>
-      </template>
-      <!-- Column: Actions -->
-      <template #cell(actions)="data">
-        <b-dropdown
-          variant="link"
-          no-caret
-          :right="$store.state.appConfig.isRTL"
-        >
-          <template #button-content>
-            <feather-icon
-              icon="MoreVerticalIcon"
-              size="16"
-              class="align-middle text-body"
-            />
-          </template>
-          <b-dropdown-item>
-            <feather-icon icon="FileTextIcon" />
-            <span class="align-middle ml-50">รายละเอียด</span>
-          </b-dropdown-item>
-
-          <b-dropdown-item>
-            <feather-icon icon="EditIcon" />
-            <span class="align-middle ml-50">แก้ไข</span>
-          </b-dropdown-item>
-
-          <b-dropdown-item>
-            <feather-icon icon="TrashIcon" />
-            <span class="align-middle ml-50">ลบ</span>
-          </b-dropdown-item>
-        </b-dropdown>
-      </template>
+      </template>            
     </b-table>
 
     <b-card-body class="d-flex justify-content-between flex-wrap pt-0">
@@ -308,8 +287,10 @@ export default {
       },
       selected: "User",
       option: ["User", "Admin"],
+      selHos: "",
+      optHos: [],
       perPage: 5,
-      pageOptions: [3, 5, 10],
+      pageOptions: [3, 5, 10,50, 100],
       totalRows: 1,
       currentPage: 1,
       sortBy: "",
@@ -332,7 +313,7 @@ export default {
         { key: "lastname", label: "นามสกุล", sortable: true },
         "email",
         { key: "role", label: "สถานะ", sortable: true },
-        { key: "actions" },
+        { key: "organigation", label: "หน่วยงาน" },        
         // { key: "status", label: "Status", sortable: true },
       ],
       /* eslint-disable global-require */
@@ -362,15 +343,41 @@ export default {
   mounted() {
     this.getUser();
     this.totalRows = this.items.length;
+    this.getHos();
   },
   methods: {
+    myRowClickHandler(record, index) {
+      this.$router.push(`detail-user/${record.id}`);
+    },
+    getHos() {
+      this.$http.get("api/v1/forms/c_hospital/27").then((res) => {
+        this.optHos = res.data.result;
+      });
+    },
     addUser() {
       this.$refs.simpleRules.validate().then((success) => {
         if (success) {
-          var data = { ...this.userFrom, role: this.selected };
+          var data = {
+            ...this.userFrom,
+            role: this.selected,
+            hoscode: this.selHos.hoscode,
+          };
           this.$http.post("api/v1/auth/register", data).then((res) => {
-            
-            this.getUser();
+            if (res.data.status == 200) {
+              this.$bvToast.toast("เพิ่มผู้้ใช้งานสำเร็จ", {
+                title: `สำเร็จ`,
+                variant: `success`,
+                solid: true,
+              });
+              this.$bvModal.hide("modal-select2");
+              this.getUser();
+            } else {
+              this.$bvToast.toast("เกิดความผิดพลาด", {
+                title: `ไม่สำเร็จ`,
+                variant: `danger`,
+                solid: true,
+              });
+            }
           });
         }
       });
