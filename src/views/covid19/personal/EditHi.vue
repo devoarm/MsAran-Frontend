@@ -300,12 +300,12 @@ export default {
         tmbpart: "",
         amppart: "",
         chwpart: "",
-        weight: "",
-        height: "",
+        weight: null,
+        height: null,
         bp: "",
         pr: "",
         vstdate: "",
-        dcdate: "",
+        dcdate: null,
         hospcode: "",
         authen_number: "",
         line_id: "",
@@ -321,7 +321,7 @@ export default {
   },
   mounted() {
     this.uId = this.$route.params.id;
-    this.$http.get(`api/v1/covid/hi-by-id/${this.uId}`).then((res) => {
+    this.$http.get(`api/v1/covid/hi-by-id/${this.uId}`).then((res) => {         
       this.$http
         .get(`api/v1/forms/c_hospital/${res.data.obj_chwpart}`)
         .then((res) => {
@@ -357,7 +357,7 @@ export default {
               title: element.tambonname,
               value: element.tamboncodefull,
             });
-          });
+          });          
         });
 
       this.form = res.data;
@@ -381,8 +381,7 @@ export default {
         title: res.data.chwpart,
         value: res.data.obj_chwpart,
       };
-      this.url = res.data.image;
-      console.log(this.form);
+      this.url = res.data.image;      
     });
     this.$http.get("api/v1/forms/ptt-type").then((res) => {
       res.data.result.forEach((element) => {
@@ -407,15 +406,16 @@ export default {
       this.file = file;
       this.url = URL.createObjectURL(file);
     },
-    handleSubmit() {
+    handleSubmit() {      
       if(this.form.hospcode == null) this.form.hospcode = {value:""}
-      if(this.form.pttype_name == null) this.form.hospcode = {value:""}
-      if(this.form.tmbpart == null) this.form.hospcode = {value:""}
-      if(this.form.amppart == null) this.form.hospcode = {value:""}
-      if(this.form.chwpart == null) this.form.hospcode = {value:""}        
+      if(this.form.pttype_name == null) this.form.pttype_name = {value:""}
+      if(this.form.tmbpart == null) this.form.tmbpart = {value:""}
+      if(this.form.amppart == null) this.form.amppart = {value:""}
+      if(this.form.chwpart == null) this.form.chwpart = {value:""}        
+      if(this.form.dcdate == '') this.form.dcdate = null        
       let formData = new FormData();
       formData.append("file", this.file);
-      formData.append("data", JSON.stringify(this.form));
+      formData.append("data", JSON.stringify(this.form));      
       this.$http
         .put(`/api/v1/covid/hi-edit/${this.uId}`, formData)
         .then((res) => {          
@@ -425,7 +425,9 @@ export default {
               title: "สำเร็จ",
               showConfirmButton: false,
               timer: 1000,
-            }).then(() => {this.$router.push('/covid19-personal-account')});
+            }).then(() => {
+              this.$router.push(`/covid19-hi-detail/${this.uId}`)
+              });
           } else{
             this.$swal({              
               icon: "error",
@@ -436,11 +438,10 @@ export default {
           }
           
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {});
     },
 
-    async fetchAMP() {
-      console.log(this.form.chwpart);
+    async fetchAMP() {      
       this.form.amppart = "";
       this.form.tmbpart = "";
       await this.$http
@@ -457,8 +458,7 @@ export default {
       await this.$http
         .get(`api/v1/forms/c_hospital/${this.form.chwpart.value}`)
         .then((res) => {
-          this.ob_hospital = res.data.result;
-          console.log(this.ob_hospital);
+          this.ob_hospital = res.data.result;          
         });
     },
     fetchTMB() {
@@ -469,7 +469,7 @@ export default {
           res.data.result.forEach((element) => {
             this.ob_tmbpart.push({
               title: element.tambonname,
-              value: element.tamboncode,
+              value: element.tamboncodefull,
             });
           });
         });

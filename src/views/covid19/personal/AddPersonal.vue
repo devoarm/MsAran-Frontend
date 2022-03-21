@@ -2,6 +2,7 @@
   <b-card-code title="" no-body>
     <div class="pl-3 pr-3 pb-2">
       <!-- User Info: Input Fields -->
+      <validation-observer ref="simpleRules">
       <b-form class="">
         <!-- Header: Personal Info -->
         <div class="d-flex">
@@ -33,15 +34,29 @@
         <b-row>
           <!-- Field: Username -->
           <b-col cols="12" md="4">
-            <b-form-group label="เลขบัตรประชาชน" label-for="cid">
-              <b-form-input v-model="form.cid" name="cid" />
-            </b-form-group>
+            <validation-provider
+                #default="{ errors }"
+                name="เลขบัตรประชาชน"
+                rules="required|integer|min:13"
+            >
+              <b-form-group label="เลขบัตรประชาชน" label-for="cid">                
+                <b-form-input v-model="form.cid" :state="errors.length > 0 ? false : null"/>
+                <small class="text-danger">{{ errors[0] }}</small>
+              </b-form-group>
+            </validation-provider>
           </b-col>
           <!-- Field: Username -->
           <b-col cols="12" md="4">
-            <b-form-group label="ชื่อ-นามสกุล" label-for="fullname">
-              <b-form-input v-model="form.fullname" />
-            </b-form-group>
+            <validation-provider
+                #default="{ errors }"
+                name="ชื่อ-นามสกุล"
+                rules="required"
+            >
+              <b-form-group label="ชื่อ-นามสกุล" label-for="fullname">
+                <b-form-input v-model="form.fullname" :state="errors.length > 0 ? false : null"/>
+                <small class="text-danger">{{ errors[0] }}</small>
+              </b-form-group>
+            </validation-provider>
           </b-col>
 
           <b-col cols="12" md="4">
@@ -63,10 +78,10 @@
 
           <b-col cols="12" md="4">
             <b-form-group label="สิทธิการรักษา" label-for="role">
-              <v-select
-                v-model="form.pttype_name"
+              <v-select                
+                @input="(value)=>{form.pttype_name = value.pttype}"
                 :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
-                label="title"
+                label="name"
                 :options="ob_pttype_name"
               />
             </b-form-group>
@@ -90,12 +105,7 @@
 
         <!-- Form: Personal Info Form -->
         <b-row class="mt-1">
-          <!-- Field: Postcode -->
-          <!-- <b-col cols="12" md="6" lg="4">
-            <b-form-group label="รหัสไปรษณีย์">
-              <b-form-input type="number" v-model="form.postcode" />
-            </b-form-group>
-          </b-col> -->
+          
           <b-col cols="12" md="6" lg="4">
             <b-form-group label="บ้านเลขที่ หมู่">
               <b-form-input v-model="form.addrpart" />
@@ -104,12 +114,11 @@
           <!-- Field: Country -->
           <b-col cols="12" md="6" lg="4">
             <b-form-group label="จังหวัด">
-              <v-select
-                v-model="form.chwpart"
-                :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
-                label="title"
+              <v-select                
+                :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"                
+                label="changwatname"
                 :options="ob_chwpart"
-                @input="fetchAMP"
+                @input="(value)=>{fetchAMP(value)}"
               />
             </b-form-group>
           </b-col>
@@ -117,13 +126,12 @@
           <!-- Field: State -->
           <b-col cols="12" md="6" lg="4">
             <b-form-group label="อำเภอ">
-              <v-select
-                v-model="form.amppart"
+              <v-select                             
                 :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
-                label="title"
+                label="ampurname"
                 :disabled="form.chwpart == ''"
                 :options="ob_amppart"
-                @input="fetchTMB"
+                @input="(value)=>{fetchTMB(value)}"                
               />
             </b-form-group>
           </b-col>
@@ -131,10 +139,10 @@
           <!-- Field: City -->
           <b-col cols="12" md="6" lg="4">
             <b-form-group label="ตำบล">
-              <v-select
-                v-model="form.tmbpart"
+              <v-select                
+                @input="(value)=>{form.tmbpart = value.tamboncodefull}" 
                 :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
-                label="title"
+                label="tambonname"
                 :disabled="form.amppart == ''"
                 :options="ob_tmbpart"
               />
@@ -193,14 +201,22 @@
 
           <!-- Field: Country -->
           <b-col cols="12" md="6" lg="4">
-            <b-form-group label="วันที่รับบริการ">
-              <flat-pickr
-                class="form-control"
-                :config="{ dateFormat: 'Y-m-d' }"
-                placeholder="YYYY-MM-DD"
-                v-model="form.vstdate"
-              />
-            </b-form-group>
+            <validation-provider
+                #default="{ errors }"
+                name="หน่วยการบริการที่ดูแล"
+                rules="required"
+            >
+              <b-form-group label="วันที่รับบริการ">
+                <flat-pickr
+                  class="form-control"
+                  :state="errors.length > 0 ? false : null"
+                  :config="{ dateFormat: 'Y-m-d' }"
+                  placeholder="YYYY-MM-DD"
+                  v-model="form.vstdate"
+                />
+                <small class="text-danger">{{ errors[0] }}</small>
+              </b-form-group>
+            </validation-provider>
           </b-col>
           <!-- Field: Country -->
           <b-col cols="12" md="6" lg="4">
@@ -214,15 +230,17 @@
             </b-form-group>
           </b-col>
           <!-- Field: Postcode -->
-          <b-col cols="12" md="6" lg="4">
-            <b-form-group label="หน่วยการบริการที่ดูแล">
-              <v-select
-                v-model="form.hospcode"
-                :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
-                label="title"
-                :options="ob_hospital"
-              />
-            </b-form-group>
+          <b-col cols="12" md="6" lg="4" v-if="userOrgan == '0'">           
+              <b-form-group label="หน่วยการบริการที่ดูแล">
+                <v-select                  
+                  @input="(value)=>{form.hospcode = value.hoscode}"                  
+                  :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
+                  label="hosname"                                    
+                  key="hoscode"
+                  :options="ob_hospital"                  
+                />
+                <small class="text-danger" v-if="form.hospcode==''">กรุณาระบุหน่วยบริการ</small>
+              </b-form-group>            
           </b-col>
           <b-col cols="12" md="6" lg="4">
             <b-form-group label="เลข Authen">
@@ -257,12 +275,14 @@
           </b-col>
         </b-row>
       </b-form>
+      </validation-observer>
     </div>
   </b-card-code>
 </template>
 
 <script>
 import BCardCode from "@core/components/b-card-code/BCardCode.vue";
+import { required, email } from "@validations";
 import {
   BRow,
   BCol,
@@ -279,7 +299,10 @@ import {
 import flatPickr from "vue-flatpickr-component";
 import { ref } from "@vue/composition-api";
 import vSelect from "vue-select";
-
+import { ValidationProvider, ValidationObserver } from "vee-validate";
+import {  
+  getUserData,  
+} from "@/auth/utils";
 export default {
   components: {
     BRow,
@@ -296,15 +319,17 @@ export default {
     BFormCheckboxGroup,
     BButton,
     BFormSelect,
+    ValidationProvider, ValidationObserver
   },
   data() {
     return {
+      userOrgan: getUserData().organigation,
       file: "",
       url: null,
       form: {
         cid: "",
         fullname: "",
-        sex: "",
+        sex: "ชาย",
         image: "",
         birthday: "",
         pttype_name: "",
@@ -313,12 +338,12 @@ export default {
         tmbpart: "",
         amppart: "",
         chwpart: "",
-        weight: "",
-        height: "",
+        weight: null,
+        height: null,
         bp: "",
         pr: "",
-        vstdate: "",
-        dcdate: "",
+        vstdate: null,
+        dcdate: null,
         hospcode: "",
         authen_number: "",
         line_id: "",
@@ -332,108 +357,89 @@ export default {
     };
   },
   mounted() {
-    this.$http.get("api/v1/forms/ptt-type").then((res) => {
-      res.data.result.forEach((element) => {
-        this.ob_pttype_name.push({
-          title: element.name,
-          value: element.pttype,
-        });
-      });
+    this.$http.get("api/v1/forms/ptt-type").then((res) => {      
+      this.ob_pttype_name = res.data.result      
     });
-    this.$http.get("api/v1/forms/subdistrict").then((res) => {
-      res.data.result.forEach((element) => {
-        this.ob_tmbpart.push({
-          title: element.tambonname,
-          value: element.tamboncodefull,
-        });
-      });
+    this.$http.get("api/v1/forms/subdistrict").then((res) => {      
+      this.ob_tmbpart = res.data.result
     });
-    this.$http.get("api/v1/forms/district").then((res) => {
-      res.data.result.forEach((element) => {
-        this.ob_amppart.push({
-          title: element.ampurname,
-          value: element.ampurcodefull,
-        });
-      });
+    this.$http.get("api/v1/forms/district").then((res) => {      
+        this.ob_amppart = res.data.result      
     });
-    this.$http.get("api/v1/forms/province").then((res) => {
-      res.data.result.forEach((element) => {
-        this.ob_chwpart.push({
-          title: element.changwatname,
-          value: element.changwatcode,
-        });
-      });
+    this.$http.get("api/v1/forms/province").then((res) => {      
+      this.ob_chwpart = res.data.result      
+    });
+    this.$http
+      .get(`api/v1/forms/c_hospital/27`)
+      .then((res) => {
+        this.ob_hospital = res.data.result
+        console.log(this.ob_hospital)
     });
   },
-  methods: {
+  methods: {    
     onFileChange(e) {
       const file = e.target.files[0];
       this.file = file;
       this.url = URL.createObjectURL(file);
     },
     handleSubmit() {
-      let formData = new FormData();
-      formData.append("file", this.file);
-      formData.append("data", JSON.stringify(this.form));
-      console.log(this.form)
-      this.$http
-        .post(`api/v1/covid/hi-add-patient-avatar`, formData)
-        .then((res) => {
-          if (res.data.status == 200) {
-            this.$swal({
-              icon: "success",
-              title: "สำเร็จ",
-              showConfirmButton: false,
-              timer: 1000,
-            }).then(() => {
-              this.$router.push("/covid19-personal-account");
-            });
-          } else {
-            this.$swal({
-              icon: "error",
-              title: "เพิ่มข้อมูลไม่สำเร็จ",
-              showConfirmButton: false,
-              timer: 1000,
-            });
-          }
-        })
-        .catch((err) => console.log(err));
+      this.$refs.simpleRules.validate().then((success) => {        
+        if (success) {
+          let formData = new FormData();
+          if(this.userOrgan != '0'){
+            this.form.hospcode = this.userOrgan
+          }      
+          console.log(this.form)
+          formData.append("file", this.file);
+          formData.append("data", JSON.stringify(this.form));
+          this.$http
+            .post(`api/v1/covid/hi-add-patient-avatar`, formData)
+            .then((res) => {
+              console.log(res.data)
+              if (res.data.msg == "Ok") {
+                this.$swal({
+                  icon: "success",
+                  title: "สำเร็จ",
+                  showConfirmButton: false,
+                  timer: 1000,
+                }).then(() => {
+                  this.$router.push("/covid19-personal-account");
+                });
+              } else {
+                this.$swal({
+                  icon: "error",
+                  title: "เพิ่มข้อมูลไม่สำเร็จ",
+                  showConfirmButton: false,
+                  timer: 1000,
+                });
+              }
+            })
+            .catch((err) => console.log(err));
+        }
+      })
+      
     },
 
-    async fetchAMP() {
+    async fetchAMP(value) {      
+      this.form.chwpart = value.changwatcode
       await this.$http
-        .get(`api/v1/forms/district-by-province/${this.form.chwpart.value}`)
+        .get(`api/v1/forms/district-by-province/${this.form.chwpart}`)
         .then((res) => {
-          this.ob_amppart = [];
-          res.data.result.forEach((element) => {
-            this.ob_amppart.push({
-              title: element.ampurname,
-              value: element.ampurcodefull,
-            });
-          });
+          this.ob_amppart = res.data.result;          
         });
       await this.$http
-        .get(`api/v1/forms/c_hospital/${this.form.chwpart.value}`)
+        .get(`api/v1/forms/c_hospital/${this.form.chwpart}`)
         .then((res) => {
-          res.data.result.forEach((element) => {
-            this.ob_hospital.push({
-              title: element.hosname,
-              value: element.hoscode,
-            });
-          });
+          this.hospcode = res.data.result
         });
     },
-    fetchTMB() {
+    fetchTMB(value) {
+      console.log(value);
+      this.form.amppart = value.ampurcodefull
       this.$http
-        .get(`api/v1/forms/subdistrict-by-district/${this.form.amppart.value}`)
+        .get(`api/v1/forms/subdistrict-by-district/${this.form.amppart}`)
         .then((res) => {
-          this.ob_tmbpart = [];
-          res.data.result.forEach((element) => {
-            this.ob_tmbpart.push({
-              title: element.tambonname,
-              value: element.tamboncodefull,
-            });
-          });
+          this.ob_tmbpart = res.data.result;          
         });
     },
   },
