@@ -173,7 +173,7 @@ import useJwt from "@/auth/jwt/useJwt";
 import jsPDF from "jspdf";
 import font from "@/service/font";
 import imageCertiport from "@/assets/images/covid/certiportCovid19.png";
-
+import {creatCertiport} from "@/service/certiport-covid"
 export default {
   components: {
     BTable,
@@ -278,59 +278,38 @@ export default {
   },
   methods: {
     async createPDF() {
-      let pdfName = "test";
-      var doc = new jsPDF("p", "mm", "a4");
-      var width = doc.internal.pageSize.getWidth();
-      var height = doc.internal.pageSize.getHeight();
-      doc.addFileToVFS("THSarabunNew-normal.ttf", font);
-      doc.addFont("THSarabunNew-normal.ttf", "THSarabunNew", "normal");
-      doc.setFont("THSarabunNew");
-      doc.setFontSize(12);
-      //คนกรอก
-      doc.text(this.form.fullname, 65, 37); //ชื่อ-นามสกุล
-      doc.text(this.form.cid, 65, 46); //เลขบัตร
-      doc.text(`${this.form.addrpart} ต.${this.form.tmbpart} อ.${this.form.amppart} จ.${this.form.chwpart}`, 62, 55); //สถานที่อยู่
-      doc.text("", 120, 72); //ชื่อสถานพยาบาล
-      doc.text(this.form.vstdate, 43, 79); //เมื่อวันที่
-      doc.text(`${this.form.addrpart} ต.${this.form.tmbpart} อ.${this.form.amppart} จ.${this.form.chwpart}`, 123, 86); //Community isolation
-      (this.form.dcdate!=null? doc.text(this.form.hospcode, 70, 92):doc.text("", 70, 92)) //ภายใต้การดูแล
-      doc.text(this.form.vstdate, 120, 92); //ระหว่าง
-      (this.form.dcdate!=null? doc.text(this.form.dcdate, 144, 92):doc.text("", 144, 92)) //ถึง
-      doc.text("", 191, 92); //รวม
-      doc.text("", 45, 99); // ประวัติอื่นที่สำคัญ
-      //แพทย์กรอก
-      doc.text('โรงพยาบาลอรัญประเทศ', 50, 134); //สถานที่ตรวจ
-      // doc.text(this.form.vstdate, 134, 134); //วันที่
-      // doc.text("-", 152, 134); //เดือน
-      // doc.text("-", 188, 134); //ปี
-      doc.text(this.form.hospcode, 65, 147); //ปฏิบัติงานภายใต
-      doc.text(this.form.fullname, 154, 147); //ขอรับรองวา
-
-
-      doc.addImage(imageCertiport, "PNG", 0, 0, width, height);
-      window.open(doc.output("bloburl", { pdfName: pdfName }), "_blank");
+      await creatCertiport(this.form)
     },
     delHi() {
-      this.$http.delete(`api/v1/covid/hi/${this.uId}`).then((res) => {
-        if (res.data.status == 200) {
-          console.log(res.data)
-          this.$swal({
-            icon: "success",
-            title: "สำเร็จ",
-            showConfirmButton: false,
-            timer: 1000,
-          }).then(() => {
-            this.$router.push("/covid19-personal-account");
+      this.$swal({
+        icon: "info",
+        title: "คุณต้องการลบหรือไม่ ?",
+        showConfirmButton: true,
+        showCancelButton: true,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.$http.delete(`api/v1/covid/hi/${this.uId}`).then((res) => {
+            if (res.data.status == 200) {
+              console.log(res.data)
+              this.$swal({
+                icon: "success",
+                title: "สำเร็จ",
+                showConfirmButton: false,
+                timer: 1000,
+              }).then(() => {
+                this.$router.push("/covid19-personal-account");
+              });
+            } else {
+              this.$swal({
+                icon: "error",
+                title: "ลบข้อมูลไม่สำเร็จ",
+                showConfirmButton: false,
+                timer: 1000,
+              });
+            }
           });
-        } else {
-          this.$swal({
-            icon: "error",
-            title: "ลบข้อมูลไม่สำเร็จ",
-            showConfirmButton: false,
-            timer: 1000,
-          });
-        }
-      });
+        } 
+      });      
     },
     getVisit() {
       this.$http

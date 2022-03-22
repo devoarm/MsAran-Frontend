@@ -183,8 +183,7 @@
             <b-form-group label="วันที่รับบริการ">
               <flat-pickr
                 class="form-control"
-                :config="{ dateFormat: 'Y-m-d' }"
-                placeholder="YYYY-MM-DD"
+                :config="{ dateFormat: 'Y-m-d' }"                
                 v-model="form.vstdate"
               />
             </b-form-group>
@@ -237,6 +236,7 @@
             </b-button>
             <b-button
               variant="outline-secondary"
+              @click="()=>{$router.push(`/covid19-hi-detail/${uId}`)}"
               :block="$store.getters['app/currentBreakPoint'] === 'xs'"
             >
               ยกเลิก
@@ -304,7 +304,7 @@ export default {
         height: null,
         bp: "",
         pr: "",
-        vstdate: "",
+        vstdate: null,
         dcdate: null,
         hospcode: "",
         authen_number: "",
@@ -321,7 +321,8 @@ export default {
   },
   mounted() {
     this.uId = this.$route.params.id;
-    this.$http.get(`api/v1/covid/hi-by-id/${this.uId}`).then((res) => {         
+    this.$http.get(`api/v1/covid/hi-by-id/${this.uId}`).then((res) => {           
+      this.form = res.data      
       this.$http
         .get(`api/v1/forms/c_hospital/${res.data.obj_chwpart}`)
         .then((res) => {
@@ -358,9 +359,7 @@ export default {
               value: element.tamboncodefull,
             });
           });          
-        });
-
-      this.form = res.data;
+        });      
       this.form.hospcode = {
         hosname: res.data.hospcode,
         hoscode: res.data.obj_hoscode,
@@ -381,7 +380,11 @@ export default {
         title: res.data.chwpart,
         value: res.data.obj_chwpart,
       };
-      this.url = res.data.image;      
+      this.url = res.data.image;    
+      let date = res.data.vstdate
+      let newdate = date.split("-").reverse().join("-");
+      this.form.vstdate = newdate      
+      
     });
     this.$http.get("api/v1/forms/ptt-type").then((res) => {
       res.data.result.forEach((element) => {
@@ -412,7 +415,7 @@ export default {
       if(this.form.tmbpart == null) this.form.tmbpart = {value:""}
       if(this.form.amppart == null) this.form.amppart = {value:""}
       if(this.form.chwpart == null) this.form.chwpart = {value:""}        
-      if(this.form.dcdate == '') this.form.dcdate = null        
+      if(this.form.dcdate == '') this.form.dcdate = empty    
       let formData = new FormData();
       formData.append("file", this.file);
       formData.append("data", JSON.stringify(this.form));      
