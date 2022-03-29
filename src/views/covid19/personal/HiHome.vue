@@ -1,9 +1,10 @@
 <template>
   <div>
     <div class="mb-1">
-      <router-link to="/covid19-visit-add/0">
+      <!-- <router-link to="/covid19-visit-add/0">
         <b-button variant="gradient-primary">บันทึกอาการ + </b-button>
-      </router-link>
+      </router-link> -->
+      <b-button variant="gradient-primary" @click="getHiHosxp">+ ดึงข้อมูลจาก Hosxp</b-button>
       <router-link to="/covid19-personal-add" class="ml-1">
         <b-button variant="gradient-danger">ลงทะเบียนเพิ่ม + </b-button>
       </router-link>
@@ -160,6 +161,16 @@ export default {
         .then((res) => {          
           this.totalRowsNew = res.data.length;          
         });
+    },
+    async getHiHosxp(){
+      await this.$http.get(`api/v1/covid/push_Hi`, {
+          headers: {
+            Authorization: `Bearer ${useJwt.getToken()}`,
+          },
+        }).then((res) => {
+          console.log(res.data)
+          location.reload();
+      })
     },
     getHi() {
       this.$http

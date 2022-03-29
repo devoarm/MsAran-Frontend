@@ -72,8 +72,9 @@
               <v-select
                 v-model="form.pttype_name"
                 :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
-                label="title"
+                label="name"
                 :options="ob_pttype_name"
+                @input="(value)=>{form.pttype_name = value.name}"
               />
             </b-form-group>
           </b-col>
@@ -105,44 +106,17 @@
             </b-form-group>
           </b-col>
           <!-- Field: Country -->
-          <b-col cols="12" md="6" lg="4">
-            <b-form-group label="จังหวัด">
-              <v-select
-                v-model="form.chwpart"
-                :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
-                label="title"
-                :options="ob_chwpart"
-                @input="fetchAMP"
-              />
-            </b-form-group>
-          </b-col>
-
-          <!-- Field: State -->
-          <b-col cols="12" md="6" lg="4">
-            <b-form-group label="อำเภอ">
-              <v-select
-                v-model="form.amppart"
-                :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
-                label="title"
-                :disabled="form.chwpart == ''"
-                :options="ob_amppart"
-                @input="fetchTMB"
-              />
-            </b-form-group>
-          </b-col>
-
-          <!-- Field: City -->
-          <b-col cols="12" md="6" lg="4">
-            <b-form-group label="ตำบล">
-              <v-select
-                v-model="form.tmbpart"
-                :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
-                label="title"
-                :disabled="form.amppart == ''"
-                :options="ob_tmbpart"
-              />
-            </b-form-group>
-          </b-col>
+          <template>
+            <b-col cols="12" md="6" lg="4">              
+              <ThailandAutoComplete v-model="form.tmbpart" type="district" @select="select" label="ตำบล" placeholder="ตำบล..."/>              
+            </b-col>            
+            <b-col cols="12" md="6" lg="4">              
+              <ThailandAutoComplete v-model="form.amppart" type="amphoe" @select="select" label="อำเภอ"  placeholder="อำเภอ..."/>
+            </b-col>            
+            <b-col cols="12" md="6" lg="4">              
+              <ThailandAutoComplete v-model="form.chwpart" type="province" @select="select" label="จังหวัด" placeholder="จังหวัด..."/>                  
+            </b-col>                                  
+          </template>
         </b-row>
         <!-- Header: Personal Info -->
         <div class="d-flex mt-2">
@@ -152,7 +126,17 @@
 
         <!-- Form: Personal Info Form -->
         <b-row class="mt-1">
-          <!-- Field: Postcode -->
+          <!-- Field: Postcode -->          
+          <b-col cols="12" md="6" lg="4">
+            <b-form-group label="ประเภทการตรวจ">
+              <v-select
+                :clearable="false"
+                v-model="form.swabtype"
+                :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"                    
+                :options="obSwabType"
+              />
+            </b-form-group>
+          </b-col>
           <b-col cols="12" md="6" lg="4">
             <b-form-group label="น้ำหนัก(kg)">
               <b-form-input type="number" v-model="form.weight" />
@@ -204,9 +188,10 @@
             <b-form-group label="หน่วยการบริการที่ดูแล">
               <v-select
                 v-model="form.hospcode"
-                :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
-                label="hosname"
+                :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"                
                 :options="ob_hospital"
+                label="hosname"
+                @input="(value)=>{form.hospcode = value.hosname}"
               />
             </b-form-group>
           </b-col>
@@ -214,12 +199,15 @@
             <b-form-group label="เลข Authen">
               <b-form-input v-model="form.authen_number" />
             </b-form-group>
-          </b-col>
-
-          <!-- Field: City -->
+          </b-col>          
           <b-col cols="12" md="6" lg="4">
             <b-form-group label="LineID">
               <b-form-input v-model="form.line_id" />
+            </b-form-group>
+          </b-col>
+          <b-col cols="12" md="6" lg="4">
+            <b-form-group label="ต้องการ favi หรือไม่ ?">
+              <b-form-checkbox v-model="form.need_favi" />
             </b-form-group>
           </b-col>
         </b-row>
@@ -262,6 +250,7 @@ import {
   BFormFile,
   BAvatar,
   BFormSelect,
+  BFormCheckbox
 } from "bootstrap-vue";
 import flatPickr from "vue-flatpickr-component";
 import { ref } from "@vue/composition-api";
@@ -283,9 +272,11 @@ export default {
     BFormCheckboxGroup,
     BButton,
     BFormSelect,
+    BFormCheckbox
   },
   data() {
     return {
+      obSwabType:["ATK","RT-PCR"],
       file: null,
       url: null,
       form: {
@@ -293,10 +284,11 @@ export default {
         fullname: "",        
         sex: "",
         image: "",
-        birthday: "",
+        birthday: null,
         pttype_name: "",
         mobile: "",
         addrpart: "",
+        pttype:"",
         tmbpart: "",
         amppart: "",
         chwpart: "",
@@ -307,120 +299,91 @@ export default {
         vstdate: null,
         dcdate: null,
         hospcode: "",
+        swabtype:"",
+        need_favi:"",
         authen_number: "",
         line_id: "",
       },
-      ob_sex: ["ชาย", "หญิง"],
+      ob_sex: ["1", "2"],
       ob_tmbpart: [],
       ob_amppart: [],
       ob_chwpart: [],
       ob_pttype_name: [],
-      ob_hospital: [],
-      uId: "",
+      ob_hospital: [],      
+      uId : this.$route.params.id,
     };
   },
-  mounted() {
-    this.uId = this.$route.params.id;
-    this.$http.get(`api/v1/covid/hi-by-id/${this.uId}`).then((res) => {           
-      this.form = res.data      
-      this.$http
-        .get(`api/v1/forms/c_hospital/${res.data.obj_chwpart}`)
-        .then((res) => {
-          this.ob_hospital = res.data.result;
-        });
-      this.$http
-        .get(`api/v1/forms/district-by-province/${res.data.obj_chwpart}`)
-        .then((res) => {
-          this.ob_amppart = [];
-          res.data.result.forEach((element) => {
-            this.ob_amppart.push({
-              title: element.ampurname,
-              value: element.ampurcodefull,
-            });
-          });
-        });
-      this.$http
-        .get(`api/v1/forms/c_hospital/${res.data.obj_chwpart}`)
-        .then((res) => {
-          res.data.result.forEach((element) => {
-            this.ob_hospital.push({
-              title: element.hosname,
-              value: element.hoscode,
-            });
-          });
-        });
-      this.$http
-        .get(`api/v1/forms/subdistrict-by-district/${res.data.obj_amppart}`)
-        .then((res) => {
-          this.ob_tmbpart = [];
-          res.data.result.forEach((element) => {
-            this.ob_tmbpart.push({
-              title: element.tambonname,
-              value: element.tamboncodefull,
-            });
-          });          
-        });      
-      this.form.hospcode = {
-        hosname: res.data.hospcode,
-        hoscode: res.data.obj_hoscode,
-      };
-      this.form.pttype_name = {
-        title: res.data.pttype_name,
-        value: res.data.obj_pttype,
-      };
-      this.form.tmbpart = {
-        title: res.data.tmbpart,
-        value: res.data.obj_tmbpart,
-      };
-      this.form.amppart = {
-        title: res.data.amppart,
-        value: res.data.obj_amppart,
-      };
-      this.form.chwpart = {
-        title: res.data.chwpart,
-        value: res.data.obj_chwpart,
-      };
-      this.url = res.data.image;    
-      let date = res.data.vstdate
-      let newdate = date.split("-").reverse().join("-");
-      this.form.vstdate = newdate      
-      
-    });
+  mounted() {    
+    this.fecthHi()
+    this.getHospital()
     this.$http.get("api/v1/forms/ptt-type").then((res) => {
-      res.data.result.forEach((element) => {
-        this.ob_pttype_name.push({
-          title: element.name,
-          value: element.pttype,
-        });
-      });
-    });
-    this.$http.get("api/v1/forms/province").then((res) => {
-      res.data.result.forEach((element) => {
-        this.ob_chwpart.push({
-          title: element.changwatname,
-          value: element.changwatcode,
-        });
-      });
-    });
+      this.ob_pttype_name = res.data.result      
+    });   
   },
   methods: {
+    getHospital(){
+      this.$http.get(`api/v1/forms/c_hospital/27`).then((res) => {
+        this.ob_hospital = res.data.result
+      })
+    }, 
+    fecthHi(){
+      this.$http.get(`api/v1/covid/hi-by-id/${this.uId}`).then((res) => {           
+        this.form = res.data     
+        this.form.need_favi = this.form.need_favi == 0 ? false:true
+        // this.form.pttype_name = res.data.pttype_name 
+        console.log(res.data)                                   
+    });
+    },
+    select (address) {
+      this.form.tmbpart = address.district
+      this.form.amppart = address.amphoe
+      this.form.chwpart = address.province            
+    },
     onFileChange(e) {
       const file = e.target.files[0];
       this.file = file;
       this.url = URL.createObjectURL(file);
     },
-    handleSubmit() {      
-      if(this.form.hospcode == null) this.form.hospcode = {value:""}
-      if(this.form.pttype_name == null) this.form.pttype_name = {value:""}
-      if(this.form.tmbpart == null) this.form.tmbpart = {value:""}
-      if(this.form.amppart == null) this.form.amppart = {value:""}
-      if(this.form.chwpart == null) this.form.chwpart = {value:""}        
-      if(this.form.dcdate == '') this.form.dcdate = empty    
+    async handleSubmit() {      
+      // return console.log(this.form)    
+      this.form.need_favi = this.form.need_favi == false ? 0:1
+      let data = this.form      
       let formData = new FormData();
+      if(this.form.tmbpart!=null,this.form.amppart!=null,this.form.chwpart!=null){
+        await this.$http.post(`api/v1/forms/vue-address`,{tmbpart:this.form.tmbpart,amppart:this.form.amppart,chwpart:this.form.chwpart})
+        .then((res)=>{               
+          data = {            
+            ...this.form,
+            image: this.form.image,
+            tmbpart: res.data.result.tamboncodefull,
+            amppart: res.data.result.ampurcodefull,
+            chwpart: res.data.result.changwatcode,                    
+          }                                                      
+        })        
+      }               
+      if(data.hospcode != null){
+        await this.$http.post(`api/v1/forms/find-hoscode`,{hosname: data.hospcode})
+        .then((res)=>{            
+          data.hospcode = res.data.result.hoscode                
+        })        
+      }      
+      if(data.pttype_name != null){
+        await this.$http.post(`api/v1/forms/find-pttype`,{pttype_name: data.pttype_name})
+        .then((res)=>{       
+          console.log(data) 
+          console.log(res.data) 
+          if(res.data.result.pttype){
+            data.pttype = res.data.result.pttype                            
+          }            
+          else{
+            data.pttype = null
+          }
+        })       
+      }
+      console.log(data)       
       formData.append("file", this.file);
-      formData.append("data", JSON.stringify(this.form));      
-      this.$http
-        .put(`/api/v1/covid/hi-edit/${this.uId}`, formData)
+      formData.append("data", JSON.stringify(data)); 
+      await this.$http.put(`/api/v1/covid/hi-edit/${this.uId}`, formData)
         .then((res) => {          
           if (res.data.status == 200) {
             this.$swal({              
@@ -432,6 +395,7 @@ export default {
               this.$router.push(`/covid19-hi-detail/${this.uId}`)
               });
           } else{
+            console.log(res.data)
             this.$swal({              
               icon: "error",
               title: "แก้ไขข้อมูลไม่สำเร็จ",
@@ -442,41 +406,7 @@ export default {
           
         })
         .catch((err) => {});
-    },
-
-    async fetchAMP() {      
-      this.form.amppart = "";
-      this.form.tmbpart = "";
-      await this.$http
-        .get(`api/v1/forms/district-by-province/${this.form.chwpart.value}`)
-        .then((res) => {
-          this.ob_amppart = [];
-          res.data.result.forEach((element) => {
-            this.ob_amppart.push({
-              title: element.ampurname,
-              value: element.ampurcodefull,
-            });
-          });
-        });
-      await this.$http
-        .get(`api/v1/forms/c_hospital/${this.form.chwpart.value}`)
-        .then((res) => {
-          this.ob_hospital = res.data.result;          
-        });
-    },
-    fetchTMB() {
-      this.$http
-        .get(`api/v1/forms/subdistrict-by-district/${this.form.amppart.value}`)
-        .then((res) => {
-          this.ob_tmbpart = [];
-          res.data.result.forEach((element) => {
-            this.ob_tmbpart.push({
-              title: element.tambonname,
-              value: element.tamboncodefull,
-            });
-          });
-        });
-    },
+    },    
   },
 };
 </script>

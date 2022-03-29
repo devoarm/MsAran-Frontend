@@ -1,9 +1,10 @@
 <template>
   <div>
     <div class="mb-1">
-      <router-link to="/covid19-visit-add">
+      <!-- <router-link to="/covid19-visit-add">
         <b-button variant="gradient-primary">บันทึกอาการ + </b-button>
-      </router-link>
+      </router-link> -->
+      <b-button variant="gradient-primary" @click="getHiHosxp">+ ดึงข้อมูลจาก Hosxp</b-button>
       <router-link to="/covid19-personal-add" class="ml-1">
         <b-button variant="gradient-danger">ลงทะเบียนเพิ่ม + </b-button>
       </router-link>
@@ -14,26 +15,25 @@
     <div>
       <b-card-code title="ทะเบียนรายชื่อบุคคล OP Self Isolation" no-body>
         <b-tabs>
-          <b-tab v-if="getUserData.organigation==='0'">    
+          <b-tab v-if="getUserData.organigation === '0'">
             <template #title>
-                <span class="mr-1">รายใหม่วันนี้</span>
-                <b-badge variant="danger">
-                  <feather-icon icon="BellIcon" class="mr-25" />
-                  <span>{{totalNew}}</span>
-                </b-badge>
-              </template>      
-            <tabal-toDay />
+              <span class="mr-1">รายใหม่วันนี้</span>
+              <b-badge v-if="totalRowsNew>0" variant="danger">
+                <feather-icon icon="BellIcon" class="mr-25" />
+                <span>{{totalRowsNew}}</span>
+              </b-badge>
+            </template>
+            <TabalToDay />
           </b-tab>
-          <b-tab v-else>    
+          <b-tab v-else>
             <template #title>
-                <span class="mr-1">รายใหม่วันนี้</span>
-                <!-- <b-badge variant="danger">
-                  <feather-icon icon="BellIcon" class="mr-25" />
-                  <span>{{totalNew}}</span>
-                </b-badge> -->                
-              </template>     
-              <NewHiUser /> 
-            <tabal-toDay />
+              <span class="mr-1">รายใหม่วันนี้</span>
+              <!-- <b-badge v-if="totalRowsNew>0" variant="danger">
+                <feather-icon icon="BellIcon" class="mr-25" />
+                <span>{{totalRowsNew}}</span>
+              </b-badge> -->
+            </template>
+            <NewHiUser />
           </b-tab>
           <b-tab>  
             <template #title>
@@ -58,12 +58,6 @@
         </b-tabs>
       </b-card-code>
     </div>
-    <template>
-      <ThailandAutoComplete v-model="district" type="district" @select="select" label="ตำบล" size="small" placeholder="ตำบล..."/>
-      <ThailandAutoComplete v-model="amphoe" type="amphoe" @select="select" label="อำเภอ" color="#42b883" placeholder="อำเภอ..."/>
-      <ThailandAutoComplete v-model="province" type="province" @select="select" label="จังหวัด" size="medium" color="#35495e" placeholder="จังหวัด..."/>
-      <ThailandAutoComplete v-model="zipcode" type="zipcode" @select="select" label="รหัสไปรษณีย์" size="large" color="#00a4e4" placeholder="รหัสไปรษณีย์..."/>
-    </template>
   </div>
 </template>
 
@@ -104,7 +98,7 @@ import BarChart from "./components/si/BarChart";
 import TabalToDay from "./components/si/TabalToDay";
 import TabalSi from "./components/si/TabalSi";
 import TabalSuccess from "./components/si/TabalSuccess";
-import NewHiUser from "./components/hi/NewHiUser";
+import NewHiUser from "./components/si/NewHiUser";
 export default {
   components: {
     BCardCode,
@@ -137,10 +131,6 @@ export default {
   },
   data() {
     return {
-       district: '',
-          amphoe: '',
-          province: '',
-          zipcode: '',
       getUserData: getUserData(),
       totalNew:0,
       totalNow:0,
@@ -153,12 +143,16 @@ export default {
     this.getSiSuccess()
   },
   methods: {
-     select (address) {
-          this.district = address.district
-          this.amphoe = address.amphoe
-          this.province = address.province
-          this.zipcode = address.zipcode
-        },
+     async getHiHosxp(){
+      await this.$http.get(`api/v1/covid/push_Hi`, {
+          headers: {
+            Authorization: `Bearer ${useJwt.getToken()}`,
+          },
+        }).then((res) => {
+          console.log(res.data)
+          location.reload();
+      })
+    },
      getSi() {
       this.$http
         .get(`api/v1/covid/si/${getUserData().organigation}`, {

@@ -372,7 +372,7 @@ export default {
             amppart: res.data.result.ampurcodefull,
             chwpart: res.data.result.changwatcode,
           }      
-          // console.log(data);
+          // console.log();
           this.$http.post(`api/v1/covid/add-hoscode-personal/${this.HiModal.id}`,data).then((res) => {
             if (res.data.status == 200) {
               this.$bvModal.hide("modal-1");   

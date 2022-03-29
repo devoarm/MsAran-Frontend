@@ -254,7 +254,7 @@ const router = new VueRouter({
       name: "covid19-si",
       component: () => import("@/views/covid19/personal/SiHome.vue"),
       meta: {
-        pageTitle: "ระบบจัดการ HI",
+        pageTitle: "ระบบจัดการ SI",
       },
     },
     {

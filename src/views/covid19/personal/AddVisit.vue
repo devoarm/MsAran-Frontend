@@ -177,6 +177,10 @@ export default {
         medication: "",
         note: "",
         provid: "",
+        addrpart: "",
+        tmbpart: "",
+        amppart: "",
+        chwpart: "",
       },
       fields: [
         {
