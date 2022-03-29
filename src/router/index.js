@@ -250,6 +250,14 @@ const router = new VueRouter({
       },
     },
     {
+      path: "/covid19-si",
+      name: "covid19-si",
+      component: () => import("@/views/covid19/personal/SiHome.vue"),
+      meta: {
+        pageTitle: "ระบบจัดการ HI",
+      },
+    },
+    {
       path: "/covid19-personal-account",
       name: "covid19-personal-account",
       component: () => import("@/views/covid19/personal/HiHome.vue"),
@@ -281,14 +289,14 @@ const router = new VueRouter({
         pageTitle: "เพิ่มข้อมูลผู้ป่วย HI",
       },
     },
-    {
-      path: "/covid19-visit-add",
-      name: "covid19-visit-add",
-      component: () => import("@/views/covid19/personal/AddVisit.vue"),
-      meta: {
-        pageTitle: "บันทึกข้อมูลติดตามอาการผู้ป่วย HI",
-      },
-    },
+    // {
+    //   path: "/covid19-visit-add",
+    //   name: "covid19-visit-add",
+    //   component: () => import("@/views/covid19/personal/AddVisit.vue"),
+    //   meta: {
+    //     pageTitle: "บันทึกข้อมูลติดตามอาการผู้ป่วย HI",
+    //   },
+    // },
     {
       path: "/covid19-visit-add/:hiId",
       name: "covid19-visit-add",

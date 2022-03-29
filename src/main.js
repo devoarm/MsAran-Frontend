@@ -6,6 +6,7 @@ import router from './router'
 import store from './store'
 import App from './App.vue'
 import VueSweetalert2 from 'vue-sweetalert2';
+import ThailandAutoComplete from 'vue-thailand-address-autocomplete'
 
 // Global Components
 import './global-components'
@@ -15,8 +16,7 @@ import 'sweetalert2/dist/sweetalert2.min.css';
 import '@/libs/portal-vue'
 import '@/libs/toastification'
 
-
-
+Vue.component('ThailandAutoComplete', ThailandAutoComplete)
 Vue.use(VueSweetalert2);
 //ภาษา validator message
 localize("th")

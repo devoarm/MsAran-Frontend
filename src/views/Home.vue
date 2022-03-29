@@ -35,7 +35,7 @@
 import { BCard, BCardText, BLink } from "bootstrap-vue";
 import Vue from "vue";
 import Chart from "chart.js";
-import HiChart from "@/views/covid19/personal/components/BarChart.vue"
+import HiChart from "@/views/covid19/personal/components/hi/BarChart.vue"
 export default {
   components: {
     BCard,

@@ -39,10 +39,14 @@
           />
         </template>
         <b-dropdown-item link-class="d-flex align-items-center">
-          <b-link :to="`detail-user/${user.id}`">
+          <!-- <b-link :to="`detail-user/${user.id}`">
             <feather-icon size="16" icon="UserIcon" class="mr-50" />
             <span>ข้อมูลส่วนตัว</span>
-          </b-link>
+          </b-link> -->
+          <router-link :to="`detail-user/${user.id}`">
+            <feather-icon size="16" icon="UserIcon" class="mr-50" />
+            <span>ข้อมูลส่วนตัว</span>
+          </router-link>
         </b-dropdown-item>
 
         <b-dropdown-divider />

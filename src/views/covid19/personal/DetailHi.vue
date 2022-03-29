@@ -135,7 +135,26 @@
     </div>
     <!-- ประวัติติดตาม -->
     <div>
-      <b-card-code title="📣 ประวัติการติดตาม" no-body>
+      <b-card-code>
+        <div class="row ml-2 mb-1">
+          <div>
+            <b-row>
+              <h3>📣 ประวัติการติดตาม</h3>
+              <b-button          
+                variant="warning"      
+                size="sm"
+                class="ml-1"   
+                @click="onExport"   
+              >
+                <feather-icon
+                  icon="StarIcon"
+                  class="mr-50"
+                />
+                <span class="align-middle">ดาว์นโหลดไฟล์ Excel</span>
+              </b-button>
+            </b-row>
+          </div>          
+        </div>       
         <b-table responsive :items="itemes" :fields="fields" class="mb-0">
         </b-table>
       </b-card-code>
@@ -174,6 +193,8 @@ import jsPDF from "jspdf";
 import font from "@/service/font";
 import imageCertiport from "@/assets/images/covid/certiportCovid19.png";
 import {creatCertiport} from "@/service/certiport-covid"
+import XLSX from 'xlsx' // import xlsx
+
 export default {
   components: {
     BTable,
@@ -337,6 +358,12 @@ export default {
       // Trigger pagination to update the number of buttons/pages due to filtering
       this.totalRows = filteredItems.length;
       this.currentPage = 1;
+    },
+    onExport() {
+      const dataWS = XLSX.utils.json_to_sheet(this.itemes)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, dataWS)
+      XLSX.writeFile(wb,'export.xlsx')
     },
   },
 };

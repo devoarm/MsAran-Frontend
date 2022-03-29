@@ -10,43 +10,43 @@ export default {
         route: "home",
         icon: "HomeIcon",
       },
-      {
-        title: "AUDIT-DATA",
-        route: "audit",
-        icon: "PieChartIcon",
-        children: [
-          {
-            title: "16 FILE",
-            icon: "CheckCircleIcon",
-            route: "audit-page",
-          },
-          {
-            title: "AuthentCode",
-            route: "authen-page",
-            icon: "KeyIcon",
-          },
-          {
-            title: "IPD",
-            icon: "CodepenIcon",
-            route: "meet-calendar",
-          },
-          {
-            title: "OPD",
-            icon: "FileTextIcon",
-            route: "visit-check",
-          },
-          {
-            title: "PP",
-            icon: "FileTextIcon",
-            route: "pp",
-          },
-          {
-            title: "Error Code",
-            icon: "AlertCircleIcon",
-            route: "error-page",
-          },
-        ],
-      },
+      // {
+      //   title: "AUDIT-DATA",
+      //   route: "audit",
+      //   icon: "PieChartIcon",
+      //   children: [
+      //     {
+      //       title: "16 FILE",
+      //       icon: "CheckCircleIcon",
+      //       route: "audit-page",
+      //     },
+      //     {
+      //       title: "AuthentCode",
+      //       route: "authen-page",
+      //       icon: "KeyIcon",
+      //     },
+      //     {
+      //       title: "IPD",
+      //       icon: "CodepenIcon",
+      //       route: "meet-calendar",
+      //     },
+      //     {
+      //       title: "OPD",
+      //       icon: "FileTextIcon",
+      //       route: "visit-check",
+      //     },
+      //     {
+      //       title: "PP",
+      //       icon: "FileTextIcon",
+      //       route: "pp",
+      //     },
+      //     {
+      //       title: "Error Code",
+      //       icon: "AlertCircleIcon",
+      //       route: "error-page",
+      //     },
+      //   ],
+      // },
       {
         title: "COVID-19",
         route: "covid19-page",
@@ -56,6 +56,11 @@ export default {
             title: "HI",
             icon: "PackageIcon",
             route: "covid19-personal-account",
+          },
+          {
+            title: "SI",
+            icon: "PackageIcon",
+            route: "covid19-si",
           },
           {
             title: "Ward",
@@ -75,18 +80,18 @@ export default {
         ],
       },
 
-      {
-        title: "BUDGETS",
-        route: "butget-page",
-        icon: "DollarSignIcon",
-        children: [
-          {
-            title: "IPD",
-            icon: "CodepenIcon",
-            route: "bud-ipd-page",
-          },
-        ],
-      },
+      // {
+      //   title: "BUDGETS",
+      //   route: "butget-page",
+      //   icon: "DollarSignIcon",
+      //   children: [
+      //     {
+      //       title: "IPD",
+      //       icon: "CodepenIcon",
+      //       route: "bud-ipd-page",
+      //     },
+      //   ],
+      // },
       {
         title: "Import",
         route: "import-page",
@@ -104,23 +109,23 @@ export default {
           },
         ],
       },
-      {
-        title: "Backoffice",
-        route: "",
-        icon: "SlackIcon",
-        children: [
-          {
-            title: "Meetings",
-            icon: "MonitorIcon",
-            route: "meet-calendar",
-          },
-          {
-            title: "Cars",
-            icon: "TruckIcon",
-            route: "car-calendar",
-          },
-        ],
-      },
+      // {
+      //   title: "Backoffice",
+      //   route: "",
+      //   icon: "SlackIcon",
+      //   children: [
+      //     {
+      //       title: "Meetings",
+      //       icon: "MonitorIcon",
+      //       route: "meet-calendar",
+      //     },
+      //     {
+      //       title: "Cars",
+      //       icon: "TruckIcon",
+      //       route: "car-calendar",
+      //     },
+      //   ],
+      // },
       {
         title: "Users",
         route: "users",
@@ -142,6 +147,7 @@ export default {
       {
         title: "SI",
         icon: "PackageIcon",
+        route: "covid19-si",
       },
     ],
     mainMenu: [],

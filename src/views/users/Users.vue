@@ -51,6 +51,7 @@
                     v-model="userFrom.username"
                     placeholder="กรอกบัญชีผู้ใช้"
                   />
+                  <small v-if="errUser" class="text-danger">{{บัญชีนี้มีผู้ใช้งานแล้ว}}</small>
                   <small class="text-danger">{{ errors[0] }}</small>
                 </b-form-group>
               </validation-provider>
@@ -277,6 +278,7 @@ export default {
   },
   data() {
     return {
+      errUser:false,
       userFrom: {
         username: "",
         password: "",
@@ -289,8 +291,8 @@ export default {
       option: ["User", "Admin"],
       selHos: "",
       optHos: [],
-      perPage: 5,
-      pageOptions: [3, 5, 10,50, 100],
+      perPage: 10,
+      pageOptions: [10,50, 100],
       totalRows: 1,
       currentPage: 1,
       sortBy: "",
@@ -363,8 +365,12 @@ export default {
             hoscode: this.selHos.hoscode,
           };
           this.$http.post("api/v1/auth/register", data).then((res) => {
-            if (res.data.status == 200) {
-              this.$bvToast.toast("เพิ่มผู้้ใช้งานสำเร็จ", {
+            if(res.data.status == 300){
+              this.errUser = true;
+            }
+            else if (res.data.status == 200) {
+              this.errUser = false
+              this.$bvToast.toast("เพิ่มผู้ใช้งานสำเร็จ", {
                 title: `สำเร็จ`,
                 variant: `success`,
                 solid: true,
@@ -372,6 +378,7 @@ export default {
               this.$bvModal.hide("modal-select2");
               this.getUser();
             } else {
+              this.errUser = false;
               this.$bvToast.toast("เกิดความผิดพลาด", {
                 title: `ไม่สำเร็จ`,
                 variant: `danger`,

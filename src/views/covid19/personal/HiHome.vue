@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="mb-1">
-      <router-link to="/covid19-visit-add">
+      <router-link to="/covid19-visit-add/0">
         <b-button variant="gradient-primary">บันทึกอาการ + </b-button>
       </router-link>
       <router-link to="/covid19-personal-add" class="ml-1">
@@ -12,27 +12,50 @@
     <div>
       <b-card-code title="ทะเบียนรายชื่อบุคคล Home Isolation" no-body>
         <b-tabs>
-          <b-tab>
+          <b-tab v-if="getUserData.organigation === '0'">
             <template #title>
               <span class="mr-1">รายใหม่วันนี้</span>
-              <b-badge v-if="totalRows>0" variant="danger">
+              <b-badge v-if="totalRowsNew>0" variant="danger">
                 <feather-icon icon="BellIcon" class="mr-25" />
-                <span>{{totalRows}}</span>
+                <span>{{totalRowsNew}}</span>
               </b-badge>
             </template>
             <TabalToDay />
           </b-tab>
+          <b-tab v-else>
+            <template #title>
+              <span class="mr-1">รายใหม่วันนี้</span>
+              <!-- <b-badge v-if="totalRowsNew>0" variant="danger">
+                <feather-icon icon="BellIcon" class="mr-25" />
+                <span>{{totalRowsNew}}</span>
+              </b-badge> -->
+            </template>
+            <NewHiUser />
+          </b-tab>
 
-          <b-tab title="ผู้ป่วยทั้งหมด">
+          <b-tab>
+            <template #title>
+              <span class="mr-1">กำลังรักษาทั้งหมด</span>
+              <b-badge variant="info">
+                <feather-icon icon="UsersIcon" class="mr-25" />
+                <span>{{totalRowsFull}}</span>
+              </b-badge>
+            </template>
             <tabal-hi />
             <template #code>
               {{ codeKitchenSink }}
             </template>
           </b-tab>
 
-          <b-tab title="รักษาหายทั้งหมด">
+          <b-tab>
+            <template #title>
+              <span class="mr-1">รักษาหายทั้งหมด</span>
+              <b-badge variant="success">
+                <feather-icon icon="CheckIcon" class="mr-25" />
+                <span>{{totalRowsSuccess}}</span>
+              </b-badge>
+            </template>
             <tabal-success />
-
             <template #code>
               {{ codeKitchenSink }}
             </template>
@@ -50,6 +73,9 @@ import { Bar } from "vue-chartjs";
 import vSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
 import Chart from "chart.js";
+import {  
+  getUserData,  
+} from "@/auth/utils";
 import {
   BTable,
   BAvatar,
@@ -73,10 +99,11 @@ import {
 import { codeKitchenSink } from "./code";
 import useJwt from "@/auth/jwt/useJwt";
 import { required, email } from "@validations";
-import BarChart from "./components/BarChart";
-import TabalToDay from "./components/TabalToDay";
-import TabalHi from "./components/TabalHi";
-import TabalSuccess from "./components/TabalSuccess";
+import BarChart from "./components/hi/BarChart";
+import TabalToDay from "./components/hi/TabalToDay";
+import TabalHi from "./components/hi/TabalHi";
+import TabalSuccess from "./components/hi/TabalSuccess";
+import NewHiUser from "./components/hi/NewHiUser";
 export default {
   components: {
     BCardCode,
@@ -105,27 +132,55 @@ export default {
     BTabs,
     BTab,
     BarChart,
+    NewHiUser
   },
   data() {
     return {
-      totalRows:0,      
+      getUserData: getUserData(),
+      totalRowsNew:0,      
+      totalRowsFull:0,      
+      totalRowsSuccess:0,      
       codeKitchenSink,
     };
   },
   mounted() {
     this.getHiNew()
+    this.getHi()
+    this.getHiSuccess()
   },
 
   methods: {
     getHiNew() {
       this.$http
-        .get("api/v1/covid/hi_new", {
+        .get(`api/v1/covid/hi_new/${getUserData().organigation}`, {
           headers: {
             Authorization: `Bearer ${useJwt.getToken()}`,
           },
         })
         .then((res) => {          
-          this.totalRows = res.data.length;          
+          this.totalRowsNew = res.data.length;          
+        });
+    },
+    getHi() {
+      this.$http
+        .get(`api/v1/covid/hi/${getUserData().organigation}`, {
+          headers: {
+            Authorization: `Bearer ${useJwt.getToken()}`,
+          },
+        })
+        .then((res) => {          
+          this.totalRowsFull = res.data.length;
+        });
+    },
+    getHiSuccess() {
+      this.$http
+        .get(`api/v1/covid/hi_success/${getUserData().organigation}`, {
+          headers: {
+            Authorization: `Bearer ${useJwt.getToken()}`,
+          },
+        })
+        .then((res) => {
+          this.totalRowsSuccess = res.data.length;
         });
     },
   },

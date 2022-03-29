@@ -1,6 +1,5 @@
 <template>
-  <b-card>
-    <b-row>
+    <b-row class="mx-1  mb-2">
       <b-col md="2" sm="4" class="my-1">
         <b-form-group class="mb-0">
           <label class="d-inline-block text-sm-left mr-50">Per page</label>
@@ -107,7 +106,6 @@
         />
       </b-col>
     </b-row>
-  </b-card>
 </template>
 
 <script>
@@ -127,6 +125,9 @@ import {
   BCard,
 } from "bootstrap-vue";
 import useJwt from "@/auth/jwt/useJwt";
+import {  
+  getUserData,  
+} from "@/auth/utils";
 export default {
   components: {
     BTable,
@@ -145,8 +146,8 @@ export default {
   },
   data() {
     return {
-      perPage: 5,
-      pageOptions: [3, 5, 10, 50, 100],
+      perPage: 10,
+      pageOptions: [10, 50, 100],
       totalRows: 1,
       currentPage: 1,
       sortBy: "",
@@ -164,26 +165,11 @@ export default {
         {
           key: "image",
           label: "รูป",
-        },
-        {
-          // key: "cid",
-          // label: "cid",
-        },
+        },      
         { key: "fullname", label: "ชื่อ-นามสกุล", sortable: true },
-        { key: "cid", label: "เลขบัตรประชาชน", sortable: true },
-        // { key: "sex", label: "เพศ", sortable: true },
-        // { key: "birthday", label: "วันเกิด" },
-        //{ key: "pttype_name", label: "สิทธ์การรักษา" },
+        { key: "cid", label: "เลขบัตรประชาชน", sortable: true },     
         { key: "pttype_authen", label: "สิทธิ", sortable: true },
-        { key: "mobile", label: "เบอร์โทรศัพท์" },
-        // { key: "addrpart", label: "ที่อยู่" },
-        // { key: "tmbpart", label: "ตำบล" },
-        // { key: "amppart", label: "อำเภอ" },
-        // { key: "chwpart", label: "จังหวัด" },
-        // { key: "weight", label: "น้ำหนัก" },
-        // { key: "height", label: "ส่วนสูง" },
-        // { key: "bp", label: "ความดัน" },
-        // { key: "pr", label: "อัตราการหายใจ" },
+        { key: "mobile", label: "เบอร์โทรศัพท์" },     
         { key: "vstdate", label: "วันที่เริ่มรับบริการ", sortable: true },
         { key: "dcdate", label: "วันที่สิ้นสุดบริการ", sortable: true },
         { key: "hospcode", label: "หน่วยบริการ", sortable: true },
@@ -220,15 +206,15 @@ export default {
   mounted() {
     // Set the initial number of items
     this.totalRows = this.items.length;
-    this.getHi();
+    this.getSi();
   },
   methods: {
     myRowClickHandler(record, index) {
       this.$router.push(`/covid19-hi-detail/${record.id}`);
     },
-    getHi() {
+    getSi() {
       this.$http
-        .get("api/v1/covid/hi", {
+        .get(`api/v1/covid/si/${getUserData().organigation}`, {
           headers: {
             Authorization: `Bearer ${useJwt.getToken()}`,
           },
@@ -236,8 +222,9 @@ export default {
         .then((res) => {
           this.items = res.data;
           this.totalRows = res.data.length;
+          console.log(this.items)
         });
-    },
+    },   
     info(item, index, button) {
       this.infoModal.title = `Row index: ${index}`;
       this.infoModal.content = JSON.stringify(item, null, 2);

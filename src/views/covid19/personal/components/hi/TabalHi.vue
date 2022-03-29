@@ -127,6 +127,9 @@ import {
   BCard,
 } from "bootstrap-vue";
 import useJwt from "@/auth/jwt/useJwt";
+import {  
+  getUserData,  
+} from "@/auth/utils";
 export default {
   components: {
     BTable,
@@ -145,8 +148,8 @@ export default {
   },
   data() {
     return {
-      perPage: 5,
-      pageOptions: [3, 5, 10],
+      perPage: 10,
+      pageOptions: [10, 50, 100],
       totalRows: 1,
       currentPage: 1,
       sortBy: "",
@@ -191,7 +194,22 @@ export default {
         // { key: "line_id", label: "ไอดีไลน์" },
       ],
       items: [],
-      
+      status: [
+        {
+          1: "Current",
+          2: "Professional",
+          3: "Rejected",
+          4: "Resigned",
+          5: "Applied",
+        },
+        {
+          1: "light-primary",
+          2: "light-success",
+          3: "light-danger",
+          4: "light-warning",
+          5: "light-info",
+        },
+      ],
     };
   },
   computed: {
@@ -204,23 +222,22 @@ export default {
   },
   mounted() {
     // Set the initial number of items
-    this.getHiSuccess();
     this.totalRows = this.items.length;
+    this.getHi();
   },
   methods: {
     myRowClickHandler(record, index) {
       this.$router.push(`/covid19-hi-detail/${record.id}`);
     },
-    getHiSuccess() {
+    getHi() {
       this.$http
-        .get("api/v1/covid/hi_success", {
+        .get(`api/v1/covid/hi/${getUserData().organigation}`, {
           headers: {
             Authorization: `Bearer ${useJwt.getToken()}`,
           },
         })
         .then((res) => {
           this.items = res.data;
-          console.log(res.data);
           this.totalRows = res.data.length;
         });
     },
