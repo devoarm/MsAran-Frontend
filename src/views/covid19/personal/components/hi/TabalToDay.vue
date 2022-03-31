@@ -365,7 +365,7 @@ export default {
           let data = {
             hospcode: this.form.hospcode.hoscode,
             mobile: this.form.mobile,
-            // swabdate: this.form.swabdate,     
+            swabdate: this.form.swabdate,     
             swabtype: this.form.swabtype,
             need_favi: this.form.need_favi,
             tmbpart: res.data.result.tamboncodefull,

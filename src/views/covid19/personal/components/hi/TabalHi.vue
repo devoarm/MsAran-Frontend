@@ -1,7 +1,7 @@
 <template>
   <b-card>
     <b-row>
-      <b-col md="2" sm="4" class="my-1">
+      <b-col md="2" sm="4">
         <b-form-group class="mb-0">
           <label class="d-inline-block text-sm-left mr-50">Per page</label>
           <b-form-select
@@ -13,7 +13,7 @@
           />
         </b-form-group>
       </b-col>
-      <b-col md="4" sm="8" class="my-1">
+      <b-col md="4" sm="8">
         <b-form-group
           label="Sort"
           label-cols-sm="3"
@@ -45,7 +45,7 @@
           </b-input-group>
         </b-form-group>
       </b-col>
-      <b-col md="6" class="my-1">
+      <b-col md="3">
         <b-form-group
           label="Filter"
           label-cols-sm="3"
@@ -69,8 +69,11 @@
           </b-input-group>
         </b-form-group>
       </b-col>
+      <b-col md="3" class="text-right">
+        <b-button variant="warning" @click="onExport">ดาว์นโหลดไฟล์ Excel</b-button>
+      </b-col>
 
-      <b-col cols="12">
+      <b-col cols="12" class="mt-1">
         <b-table
           striped
           hover
@@ -130,6 +133,7 @@ import useJwt from "@/auth/jwt/useJwt";
 import {  
   getUserData,  
 } from "@/auth/utils";
+import XLSX from 'xlsx' // import xlsx
 export default {
   components: {
     BTable,
@@ -226,6 +230,43 @@ export default {
     this.getHi();
   },
   methods: {
+    onExport(){
+      let data = []
+      this.items.forEach(async (value) =>{
+        await data.push({
+          เลขบัตรประชาชน: value.cid,
+          ชื่อนามสกุล: value.fullname,
+          เพศ: (value.sex == 1?'ชาย': (value.sex ==2?'หญิง':null)),
+          วันเกิด: value.birthday,
+          ที่อยู่: value.addrpart,
+          ตำบล: value.tmbpart,
+          อำเภอ: value.amppart,
+          จังหวัด: value.chwpart,
+          ไอดีไลน์: value.line_id,
+          เบอร์โทรศัพท์: value.mobile,
+          วันที่ตรวจพบโควิด: value.swabdate,
+          ประเภทการตรวจ: value.swabtype,
+          รับยาFavi: value.need_favi==1? 'รับ':'ไม่รับ',
+          วันที่เริ่มรับบริการ: value.vstdate,
+          วันที่สิ้นสุดบริการ: value.dcdate,
+          authen_date: value.authen_date,
+          authen_number: value.authen_number,
+          claim_code: value.claim_code,          
+          น้ำหนัก: value.weight,
+          ส่วนสูง: value.height,          
+          bp: value.bp,
+          pr: value.pr,
+          pttype_authen: value.pttype_authen,
+          สิทธ์การรักษา: value.pttype_name,          
+          type_audit: value.type_audit,          
+          หน่วยบริการ: value.hospcode,
+        })
+      })
+      const dataWS = XLSX.utils.json_to_sheet(data)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, dataWS)
+      XLSX.writeFile(wb,'export.xlsx')
+    },
     myRowClickHandler(record, index) {
       this.$router.push(`/covid19-hi-detail/${record.id}`);
     },
@@ -238,6 +279,8 @@ export default {
         })
         .then((res) => {
           this.items = res.data;
+          console.log("Hi Export")
+          console.log(this.items)
           this.totalRows = res.data.length;
         });
     },

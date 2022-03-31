@@ -333,7 +333,6 @@ export default {
   },
   mounted() {
     // Set the initial number of items
-    this.totalRows = this.items.length;
     this.getSiNew();    
   },
   methods: {
@@ -420,6 +419,7 @@ export default {
         })
         .then((res) => {
           this.items = res.data;
+          console.log("today")          
           this.totalRows = this.items.length;          
         });
     },

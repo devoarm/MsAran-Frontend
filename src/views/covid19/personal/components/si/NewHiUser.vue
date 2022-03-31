@@ -226,7 +226,7 @@ export default {
   mounted() {
     // Set the initial number of items
     this.totalRows = this.items.length;
-    this.getHiNew();
+    this.getSiNew();
     this.getHospital();
   },
   methods: {   
@@ -247,7 +247,7 @@ export default {
                             variant:'success',
                             solid: true,
                         })
-                        this.getHiNew()
+                        this.getSiNew()
                     } else{
                         this.$bvToast.toast('ผิดพลาด', {
                             title: `แจ้งเตือน`,
@@ -259,9 +259,9 @@ export default {
             } 
         });
     },
-    getHiNew() {
+    getSiNew() {
       this.$http
-        .get(`api/v1/covid/hi_new/${getUserData().organigation}`, {
+        .get(`api/v1/covid/si-new/${getUserData().organigation}`, {
           headers: {
             Authorization: `Bearer ${useJwt.getToken()}`,
           },

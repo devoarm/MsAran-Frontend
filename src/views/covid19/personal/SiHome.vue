@@ -28,10 +28,10 @@
           <b-tab v-else>
             <template #title>
               <span class="mr-1">รายใหม่วันนี้</span>
-              <!-- <b-badge v-if="totalRowsNew>0" variant="danger">
+              <b-badge v-if="totalRowsNew>0" variant="danger">
                 <feather-icon icon="BellIcon" class="mr-25" />
                 <span>{{totalRowsNew}}</span>
-              </b-badge> -->
+              </b-badge>
             </template>
             <NewHiUser />
           </b-tab>
@@ -132,7 +132,7 @@ export default {
   data() {
     return {
       getUserData: getUserData(),
-      totalNew:0,
+      totalRowsNew:0,
       totalNow:0,
       totalSuccess:0,
     };
@@ -183,8 +183,8 @@ export default {
             Authorization: `Bearer ${useJwt.getToken()}`,
           },
         })
-        .then((res) => {        
-          this.totalNew = res.data.length;          
+        .then((res) => {         
+          this.totalRowsNew = res.data.length;            
         });
     },
   },

@@ -223,7 +223,6 @@ export default {
         })
         .then((res) => {
           this.items = res.data;
-          console.log(res.data);
           this.totalRows = res.data.length;
         });
     },

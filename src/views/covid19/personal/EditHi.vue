@@ -2,6 +2,7 @@
   <b-card-code title="" no-body>
     <div class="pl-3 pr-3 pb-2">
       <!-- User Info: Input Fields -->
+       <validation-observer ref="simpleRules">
       <b-form class="">
         <!-- Header: Personal Info -->
         <div class="d-flex">
@@ -40,13 +41,27 @@
           <!-- Field: Username -->
           <b-col cols="12" md="4">
             <b-form-group label="เลขบัตรประชาชน" label-for="cid">
-              <b-form-input v-model="form.cid" name="cid" />
+              <validation-provider
+                #default="{ errors }"
+                name="เลขบัตรประชาชน"
+                rules="required|digits:13"
+              >
+                <b-form-input v-model="form.cid" name="cid" :state="errors.length > 0 ? false:null"/>
+                <small class="text-danger">{{ errors[0] }}</small>
+              </validation-provider>
             </b-form-group>
           </b-col>
           <!-- Field: Username -->
           <b-col cols="12" md="4">
             <b-form-group label="ชื่อ-นามสกุล" label-for="fullname">
-              <b-form-input v-model="form.fullname" />
+              <validation-provider
+                #default="{ errors }"
+                name="ชื่อ-นามสกุล"
+                rules="required"
+              >
+                <b-form-input v-model="form.fullname" :state="errors.length > 0 ? false:null"/>
+                <small class="text-danger">{{ errors[0] }}</small>
+              </validation-provider>
             </b-form-group>
           </b-col>
 
@@ -127,6 +142,27 @@
         <!-- Form: Personal Info Form -->
         <b-row class="mt-1">
           <!-- Field: Postcode -->          
+          <b-col cols="12" md="6" lg="4">
+            <b-form-group label="ประเภทการรักยา">
+              <validation-provider
+                #default="{ errors }"
+                name="ประเภทการรักยา"
+                rules="required"
+              >
+                <v-select
+                  :clearable="false"
+                  v-model="form.department"
+                  :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"                    
+                  :options="obDepartment"
+                  :state="errors.length > 0 ? false:null"
+                  :class="{
+                    'border rounded-lg border-danger': !!errors.length,
+                  }"
+                />
+                <small class="text-danger">{{ errors[0] }}</small>
+              </validation-provider>
+            </b-form-group>
+          </b-col>
           <b-col cols="12" md="6" lg="4">
             <b-form-group label="ประเภทการตรวจ">
               <v-select
@@ -232,12 +268,14 @@
           </b-col>
         </b-row>
       </b-form>
+      </validation-observer>
     </div>
   </b-card-code>
 </template>
 
 <script>
 import BCardCode from "@core/components/b-card-code/BCardCode.vue";
+import { required, email } from "@validations";
 import {
   BRow,
   BCol,
@@ -255,7 +293,7 @@ import {
 import flatPickr from "vue-flatpickr-component";
 import { ref } from "@vue/composition-api";
 import vSelect from "vue-select";
-
+import { ValidationProvider, ValidationObserver } from "vee-validate";
 export default {
   components: {
     BRow,
@@ -272,11 +310,14 @@ export default {
     BFormCheckboxGroup,
     BButton,
     BFormSelect,
-    BFormCheckbox
+    BFormCheckbox,
+    ValidationProvider,
+    ValidationObserver
   },
   data() {
     return {
       obSwabType:["ATK","RT-PCR"],
+      obDepartment:["HI_CI","SI"],
       file: null,
       url: null,
       form: {
@@ -344,71 +385,75 @@ export default {
       this.file = file;
       this.url = URL.createObjectURL(file);
     },
-    async handleSubmit() {      
-      // return console.log(this.form)    
-      this.form.need_favi = this.form.need_favi == false ? 0:1
-      let data = this.form      
-      let formData = new FormData();
-      if(this.form.tmbpart!=null,this.form.amppart!=null,this.form.chwpart!=null){
-        await this.$http.post(`api/v1/forms/vue-address`,{tmbpart:this.form.tmbpart,amppart:this.form.amppart,chwpart:this.form.chwpart})
-        .then((res)=>{               
-          data = {            
-            ...this.form,
-            image: this.form.image,
-            tmbpart: res.data.result.tamboncodefull,
-            amppart: res.data.result.ampurcodefull,
-            chwpart: res.data.result.changwatcode,                    
-          }                                                      
-        })        
-      }               
-      if(data.hospcode != null){
-        await this.$http.post(`api/v1/forms/find-hoscode`,{hosname: data.hospcode})
-        .then((res)=>{            
-          data.hospcode = res.data.result.hoscode                
-        })        
-      }      
-      if(data.pttype_name != null){
-        await this.$http.post(`api/v1/forms/find-pttype`,{pttype_name: data.pttype_name})
-        .then((res)=>{       
-          console.log(data) 
-          console.log(res.data) 
-          if(res.data.result.pttype){
-            data.pttype = res.data.result.pttype                            
-          }            
-          else{
-            data.pttype = null
+    async handleSubmit() {  
+       this.$refs.simpleRules.validate().then(async success => {
+        if (success) {
+          this.form.need_favi = this.form.need_favi == false ? 0:1
+          let data = this.form      
+          let formData = new FormData();
+          if(this.form.tmbpart!=null,this.form.amppart!=null,this.form.chwpart!=null){
+            await this.$http.post(`api/v1/forms/vue-address`,{tmbpart:this.form.tmbpart,amppart:this.form.amppart,chwpart:this.form.chwpart})
+            .then((res)=>{               
+              data = {            
+                ...this.form,
+                image: this.form.image,
+                tmbpart: res.data.result.tamboncodefull,
+                amppart: res.data.result.ampurcodefull,
+                chwpart: res.data.result.changwatcode,                    
+              }                                                      
+            })        
+          }               
+          if(data.hospcode != null){
+            await this.$http.post(`api/v1/forms/find-hoscode`,{hosname: data.hospcode})
+            .then((res)=>{            
+              data.hospcode = res.data.result.hoscode                
+            })        
+          }      
+          if(data.pttype_name != null){
+            await this.$http.post(`api/v1/forms/find-pttype`,{pttype_name: data.pttype_name})
+            .then((res)=>{       
+              console.log(data) 
+              console.log(res.data) 
+              if(res.data.result.pttype){
+                data.pttype = res.data.result.pttype                            
+              }            
+              else{
+                data.pttype = null
+              }
+            })       
           }
-        })       
-      }
-      console.log(data)       
-      formData.append("file", this.file);
-      formData.append("data", JSON.stringify(data)); 
-      await this.$http.put(`/api/v1/covid/hi-edit/${this.uId}`, formData)
-        .then((res) => {          
-          if (res.data.status == 200) {
-            this.$swal({              
-              icon: "success",
-              title: "สำเร็จ",
-              showConfirmButton: false,
-              timer: 1000,
-            }).then(() => {
-              this.$router.push(`/covid19-hi-detail/${this.uId}`)
-              });
-          } else{
-            console.log(res.data)
-            this.$swal({              
-              icon: "error",
-              title: "แก้ไขข้อมูลไม่สำเร็จ",
-              showConfirmButton: false,
-              timer: 1000,
+          console.log(data)       
+          formData.append("file", this.file);
+          formData.append("data", JSON.stringify(data)); 
+          await this.$http.put(`/api/v1/covid/hi-edit/${this.uId}`, formData)
+            .then((res) => {          
+              if (res.data.status == 200) {
+                this.$swal({              
+                  icon: "success",
+                  title: "สำเร็จ",
+                  showConfirmButton: false,
+                  timer: 1000,
+                }).then(() => {
+                  this.$router.push(`/covid19-hi-detail/${this.uId}`)
+                  });
+              } else{
+                console.log(res.data)
+                this.$swal({              
+                  icon: "error",
+                  title: "แก้ไขข้อมูลไม่สำเร็จ",
+                  showConfirmButton: false,
+                  timer: 1000,
+                })
+              }
+              
             })
-          }
-          
-        })
-        .catch((err) => {});
-    },    
-  },
-};
+            .catch((err) => {});
+        }    
+      // return console.log(this.form)          
+    }) 
+    }
+  }
+  }
 </script>
 
 <style lang="scss">
