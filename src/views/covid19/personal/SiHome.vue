@@ -18,7 +18,7 @@
           <b-tab v-if="getUserData.organigation === '0'">
             <template #title>
               <span class="mr-1">รายใหม่วันนี้</span>
-              <b-badge v-if="totalRowsNew>0" variant="danger">
+              <b-badge variant="danger">
                 <feather-icon icon="BellIcon" class="mr-25" />
                 <span>{{totalRowsNew}}</span>
               </b-badge>
@@ -28,7 +28,7 @@
           <b-tab v-else>
             <template #title>
               <span class="mr-1">รายใหม่วันนี้</span>
-              <b-badge v-if="totalRowsNew>0" variant="danger">
+              <b-badge variant="danger">
                 <feather-icon icon="BellIcon" class="mr-25" />
                 <span>{{totalRowsNew}}</span>
               </b-badge>

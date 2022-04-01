@@ -1,7 +1,7 @@
 <template>
   <b-card>
     <b-row>
-      <b-col md="2" sm="4" class="my-1">
+      <b-col md="2" sm="4">
         <b-form-group class="mb-0">
           <label class="d-inline-block text-sm-left mr-50">Per page</label>
           <b-form-select
@@ -13,7 +13,7 @@
           />
         </b-form-group>
       </b-col>
-      <b-col md="4" sm="8" class="my-1">
+      <b-col md="4" sm="8">
         <b-form-group
           label="Sort"
           label-cols-sm="3"
@@ -45,7 +45,7 @@
           </b-input-group>
         </b-form-group>
       </b-col>
-      <b-col md="6" class="my-1">
+      <b-col md="6">
         <b-form-group
           label="Filter"
           label-cols-sm="3"
@@ -70,7 +70,7 @@
         </b-form-group>
       </b-col>
 
-      <b-col cols="12">
+      <b-col cols="12" class="mt-1">
         <b-table
           striped
           hover
@@ -94,7 +94,7 @@
             />
           </template>          
           <template #cell(hospcode)="data">            
-            <b-badge variant="warning" v-if="!data.value"> กรุณาระบุหน่วยบริการ </b-badge>
+            <b-badge variant="primary" v-if="!data.value"> กดยืนยันรักษาครบ </b-badge>
             <!-- basic modal -->            
           </template>
         </b-table>
@@ -110,8 +110,7 @@
           class="my-0"
         />
       </b-col>
-    </b-row>
-  
+    </b-row>  
   </b-card>
 </template>
 
@@ -131,7 +130,8 @@ import {
   BButton,
   BCard,
   BForm,
-  BCardText
+  BCardText,
+  BFormCheckbox
 } from "bootstrap-vue";
 import useJwt from "@/auth/jwt/useJwt";
 import { ValidationProvider, ValidationObserver } from "vee-validate";
@@ -160,7 +160,8 @@ export default {
     ValidationObserver,
     BCardText,
     flatPickr,
-    vSelect
+    vSelect,
+    BFormCheckbox
   },
   data() {
     return {
@@ -169,9 +170,18 @@ export default {
           hoscode:"",
           hosname:"",
         },
+        swabtype:"",
+        need_favi:false,
         mobile: "",
-        swabdate:""  
-      },
+        swabdate:null,
+        addrpart:"",
+        tmbpart: "",
+        amppart: "",
+        chwpart: ""
+      },                 
+      obSwabType:["ATK","RT-PCR"],
+      ob_chwpart:[],
+      ob_amppart:[],
       HiModal:"",
       opHospital:[],
       perPage: 10,
@@ -206,8 +216,9 @@ export default {
         //{ key: "pttype_name", label: "สิทธ์การรักษา" },
         { key: "pttype_name", label: "สิทธิ", sortable: true },
         { key: "mobile", label: "เบอร์โทรศัพท์" },       
-        { key: "vstdate", label: "วันที่เริ่มรับบริการ", sortable: true },
-        { key: "dcdate", label: "วันที่สิ้นสุดบริการ", sortable: true },
+        { key: "swabdate", label: "วันที่พบเชื้อ", sortable: true },
+        // { key: "vstdate", label: "วันที่เริ่มรับบริการ", sortable: true },
+        // { key: "dcdate", label: "วันที่สิ้นสุดบริการ", sortable: true },
         { key: "hospcode", label: "หน่วยบริการ", sortable: true },
         { key: "claim_code", label: "Authen" },
         // { key: "line_id", label: "ไอดีไลน์" },
@@ -226,57 +237,81 @@ export default {
   mounted() {
     // Set the initial number of items
     this.totalRows = this.items.length;
-    this.getSiNew();
-    this.getHospital();
+    this.getHiTenDay();    
   },
-  methods: {   
-    myRowClickHandler(record, index) {
-        console.log(record)
-        this.$swal({
+  methods: {
+    select (address) {
+      this.form.tmbpart = address.district
+      this.form.amppart = address.amphoe
+      this.form.chwpart = address.province            
+    },
+    handleCancle(){
+      this.form = {
+        hospcode: {
+          hoscode:"",
+          hosname:"",
+        },
+        swabtype:"",
+        need_favi:false,
+        mobile: "",
+        swabdate:null,
+        addrpart:"",
+        tmbpart: "",
+        amppart: "",
+        chwpart: ""
+      }
+    },
+    async myRowClickHandler(record, index) {
+      this.$swal({
             icon: "question",
-            title: `ยืนยัน คุณ ${record.fullname}`,
-            text:`ต้องการยืนยัน HI หรือไม่ ?`,
+            title: `คุณ ${record.fullname}`,
+            text:`ต้องการยืนยันว่ารักษาครบวันนี้ หรือไม่?`,
             showConfirmButton: true,  
             showCancelButton: true,
         }).then((result) => {
             if (result.isConfirmed) {
-                this.$http.get(`api/v1/covid/confirme-hi/${record.id}`).then((res)=>{
-                    if(res.data.status == 200){
-                        this.$bvToast.toast('สำเร็จ', {
-                            title: `แจ้งเตือน`,
-                            variant:'success',
-                            solid: true,
-                        })
-                        this.getSiNew()
-                    } else{
-                        this.$bvToast.toast('ผิดพลาด', {
-                            title: `แจ้งเตือน`,
-                            variant:'danger',
-                            solid: true,
-                        })
-                    }
+                this.$http.get(`api/v1/covid/confirme-hi-success/${record.id}`, {
+                  headers: {
+                    Authorization: `Bearer ${useJwt.getToken()}`,
+                  },
+                }).then((res) => {
+                  console.log(res.data)
+                  if(res.data.status == 200){
+                    this.$bvToast.toast('สำเร็จ', {
+                        title: `แจ้งเตือน`,
+                        variant:'success',
+                        solid: true,
+                    })
+                    this.getHiTenDay()
+                  } else {
+                    this.$bvToast.toast('ผิดพลาด', {
+                        title: `แจ้งเตือน`,
+                        variant:'danger',
+                        solid: true,
+                    })
+                  }
                 })
             } 
         });
     },
-    getSiNew() {
+    getHiTenDay() {
       this.$http
-        .get(`api/v1/covid/si-new/${getUserData().organigation}`, {
+        .get(`api/v1/covid/hi-ten-day/${getUserData().organigation}`, {
           headers: {
             Authorization: `Bearer ${useJwt.getToken()}`,
           },
         })
         .then((res) => {
-          console.log(res.data)
-          this.items = res.data;
-          this.totalRows = res.data.length;          
+            console.log(res.data)
+            this.items = res.data;
+            this.totalRows = res.data.length;          
         });
     },
     getHospital(){
       this.$http.get(`api/v1/forms/c_hospital/27`).then((res) => {
         this.opHospital = res.data.result
       })
-    },
+    },      
     info(item, index, button) {
       this.infoModal.title = `Row index: ${index}`;
       this.infoModal.content = JSON.stringify(item, null, 2);

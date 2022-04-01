@@ -191,8 +191,9 @@ export default {
         // { key: "height", label: "ส่วนสูง" },
         // { key: "bp", label: "ความดัน" },
         // { key: "pr", label: "อัตราการหายใจ" },
-        { key: "vstdate", label: "วันที่เริ่มรับบริการ", sortable: true },
-        { key: "dcdate", label: "วันที่สิ้นสุดบริการ", sortable: true },
+        { key: "swabdate", label: "วันที่พบเชื้อ", sortable: true },
+        // { key: "vstdate", label: "วันที่เริ่มรับบริการ", sortable: true },
+        // { key: "dcdate", label: "วันที่สิ้นสุดบริการ", sortable: true },
         { key: "hospcode", label: "หน่วยบริการ", sortable: true },
         { key: "claim_code", label: "Authen" },
         // { key: "line_id", label: "ไอดีไลน์" },
@@ -226,8 +227,8 @@ export default {
   },
   mounted() {
     // Set the initial number of items
-    this.totalRows = this.items.length;
     this.getHi();
+    this.totalRows = this.items.length;
   },
   methods: {
     onExport(){
@@ -262,6 +263,7 @@ export default {
           หน่วยบริการ: value.hospcode,
         })
       })
+      console.log(data)
       const dataWS = XLSX.utils.json_to_sheet(data)
       const wb = XLSX.utils.book_new()
       XLSX.utils.book_append_sheet(wb, dataWS)
@@ -278,9 +280,7 @@ export default {
           },
         })
         .then((res) => {
-          this.items = res.data;
-          console.log("Hi Export")
-          console.log(this.items)
+          this.items = res.data;          
           this.totalRows = res.data.length;
         });
     },

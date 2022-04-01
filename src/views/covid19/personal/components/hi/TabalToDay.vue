@@ -1,7 +1,7 @@
 <template>
   <b-card>
     <b-row>
-      <b-col md="2" sm="4" class="my-1">
+      <b-col md="2" sm="4" >
         <b-form-group class="mb-0">
           <label class="d-inline-block text-sm-left mr-50">Per page</label>
           <b-form-select
@@ -13,7 +13,7 @@
           />
         </b-form-group>
       </b-col>
-      <b-col md="4" sm="8" class="my-1">
+      <b-col md="4" sm="8" >
         <b-form-group
           label="Sort"
           label-cols-sm="3"
@@ -45,7 +45,7 @@
           </b-input-group>
         </b-form-group>
       </b-col>
-      <b-col md="6" class="my-1">
+      <b-col md="6" >
         <b-form-group
           label="Filter"
           label-cols-sm="3"
@@ -70,7 +70,7 @@
         </b-form-group>
       </b-col>
 
-      <b-col cols="12">
+      <b-col cols="12" class="mt-1">
         <b-table
           striped
           hover
@@ -112,7 +112,7 @@
       </b-col>
     </b-row>
     <b-modal
-      id="modal-1"
+      id="modal-hi-new"
       :title="'ชื่อ : '+HiModal.fullname"      
       ok-title="ยืนยัน"
       @ok.prevent="handleSubmit"      
@@ -134,6 +134,7 @@
                     v-model="form.hospcode"
                     :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"
                     label="hosname"
+                    @input="(value)=>{form.hospcode = value.hosname}"
                     :options="opHospital"
                   />
                 </b-form-group>
@@ -264,10 +265,7 @@ export default {
   data() {
     return {
       form:{
-        hospcode: {
-          hoscode:"",
-          hosname:"",
-        },
+        hospcode: "",
         swabtype:"",
         need_favi:false,
         mobile: "",
@@ -314,8 +312,9 @@ export default {
         //{ key: "pttype_name", label: "สิทธ์การรักษา" },
         { key: "pttype_name", label: "สิทธิ", sortable: true },
         { key: "mobile", label: "เบอร์โทรศัพท์" },       
+        // { key: "swabdate", label: "วันที่พบเชื้อ", sortable: true },
         { key: "vstdate", label: "วันที่เริ่มรับบริการ", sortable: true },
-        { key: "dcdate", label: "วันที่สิ้นสุดบริการ", sortable: true },
+        // { key: "dcdate", label: "วันที่สิ้นสุดบริการ", sortable: true },
         { key: "hospcode", label: "หน่วยบริการ", sortable: true },
         { key: "claim_code", label: "Authen" },
         // { key: "line_id", label: "ไอดีไลน์" },
@@ -334,7 +333,8 @@ export default {
   mounted() {
     // Set the initial number of items
     this.totalRows = this.items.length;
-    this.getHiNew();    
+    this.getHiNew();  
+    this.getHospital()  
   },
   methods: {
     select (address) {
@@ -344,12 +344,9 @@ export default {
     },
     handleCancle(){
       this.form = {
-        hospcode: {
-          hoscode:"",
-          hosname:"",
-        },
+        hospcode: "",
         swabtype:"",
-        need_favi:false,
+        need_favi:0,
         mobile: "",
         swabdate:null,
         addrpart:"",
@@ -358,38 +355,24 @@ export default {
         chwpart: ""
       }
     },
-    async handleSubmit(){                  
+    async handleSubmit(){  
+      let data = {
+        hospcode: this.form.hospcode,
+        mobile: this.form.mobile,
+        swabdate: this.form.swabdate,     
+        swabtype: this.form.swabtype,
+        need_favi : this.form.need_favi == false ? 0:1,
+        addrpart: this.form.addrpart,
+        tmbpart: '',
+        amppart: '',
+        chwpart: '',
+      }             
       await this.$http.post(`api/v1/forms/vue-address`,{tmbpart:this.form.tmbpart,amppart:this.form.amppart,chwpart:this.form.chwpart})
       .then((res) => {
-        if(res.data.status == 200){                  
-          let data = {
-            hospcode: this.form.hospcode.hoscode,
-            mobile: this.form.mobile,
-            swabdate: this.form.swabdate,     
-            swabtype: this.form.swabtype,
-            need_favi: this.form.need_favi,
-            tmbpart: res.data.result.tamboncodefull,
-            amppart: res.data.result.ampurcodefull,
-            chwpart: res.data.result.changwatcode,
-          }      
-          // console.log();
-          this.$http.post(`api/v1/covid/add-hoscode-personal/${this.HiModal.id}`,data).then((res) => {
-            if (res.data.status == 200) {
-              this.$bvModal.hide("modal-1");   
-              this.$bvToast.toast('สำเร็จ', {
-                title: `แจ้งเตือน`,
-                variant:'success',
-                solid: true,
-              })
-              this.getHiNew()
-            } else {
-              this.$bvToast.toast('ไม่สำเร็จ! เกิดควมผิดพลาด', {
-                title: `แจ้งเตือน`,
-                variant:'danger',
-                solid: true,
-              })
-            }
-          })
+        if(res.data.status == 200){ 
+          data.tmbpart = res.data.result.tamboncodefull
+          data.amppart = res.data.result.ampurcodefull
+          data.chwpart = res.data.result.changwatcode          
         } else{
           this.$bvToast.toast('ที่อยู่ไม่ถูกต้อง', {
               title: `แจ้งเตือน`,
@@ -398,18 +381,47 @@ export default {
           })           
         }
       })
+      if(data.hospcode != null | data.hospcode != ''){
+        await this.$http.post(`api/v1/forms/find-hoscode`,{hosname: data.hospcode})
+        .then((res)=>{            
+          data.hospcode = res.data.result.hoscode                
+        })        
+      }  
+      // return console.log(data) 
+      this.$http.post(`api/v1/covid/add-hoscode-personal/${this.HiModal.id}`,data).then((res) => {
+        console.log(res.data)
+        if (res.data.status == 200) {
+          this.$bvModal.hide("modal-hi-new");   
+          this.$bvToast.toast('สำเร็จ', {
+            title: `แจ้งเตือน`,
+            variant:'success',
+            solid: true,
+          })
+          this.getHiNew()
+        } else {
+          this.$bvToast.toast('ไม่สำเร็จ! เกิดควมผิดพลาด', {
+            title: `แจ้งเตือน`,
+            variant:'danger',
+            solid: true,
+          })
+        }
+      })
       
     },
     async myRowClickHandler(record, index) {
-      this.$bvModal.show("modal-1");   
-      this.HiModal = record;
+      this.$bvModal.show("modal-hi-new");   
+      this.HiModal = record;    
+      this.form = this.HiModal  
+      this.form.need_favi = this.HiModal.need_favi == 1 ? true:false
       this.form.addrpart = record.addrpart;
       this.getHospital();
       await this.$http.get(`api/v1/covid/hi-by-id/${this.HiModal.id}`).then((res)=>{        
-        this.form.tmbpart = res.data.tmbpart
-        this.form.amppart = res.data.amppart
-        this.form.chwpart = res.data.chwpart
+        res.data.tmbpart == null ? this.form.tmbpart="":this.form.tmbpart = res.data.tmbpart
+        // res.data.tmbpart == null ? this.form.tmbpart="" : 
+        res.data.chwpart == null ? this.form.chwpart="" : this.form.chwpart = res.data.chwpart
+        res.data.amppart == null ? this.form.amppart="" : this.form.amppart = res.data.amppart
       })
+      console.log(this.form);
     },
     getHiNew() {
       this.$http

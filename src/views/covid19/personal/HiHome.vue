@@ -16,7 +16,7 @@
           <b-tab v-if="getUserData.organigation === '0'">
             <template #title>
               <span class="mr-1">รายใหม่วันนี้</span>
-              <b-badge v-if="totalRowsNew>0" variant="danger">
+              <b-badge variant="danger">
                 <feather-icon icon="BellIcon" class="mr-25" />
                 <span>{{totalRowsNew}}</span>
               </b-badge>
@@ -26,14 +26,13 @@
           <b-tab v-else>
             <template #title>
               <span class="mr-1">รายใหม่วันนี้</span>
-              <b-badge v-if="totalRowsNew>0" variant="danger">
+              <b-badge variant="danger">
                 <feather-icon icon="BellIcon" class="mr-25" />
                 <span>{{totalRowsNew}}</span>
               </b-badge>
             </template>
             <NewHiUser />
           </b-tab>
-
           <b-tab>
             <template #title>
               <span class="mr-1">กำลังรักษาทั้งหมด</span>
@@ -47,7 +46,19 @@
               {{ codeKitchenSink }}
             </template>
           </b-tab>
-
+          <b-tab>
+            <template #title>
+              <span class="mr-1">รายชื่อครบ 10 วันนี้</span>
+              <b-badge variant="primary">
+                <feather-icon icon="CheckIcon" class="mr-25" />
+                <span>{{totalRowsTenDay}}</span>
+              </b-badge>
+            </template>
+            <tabal-ten-day />
+            <template #code>
+              {{ codeKitchenSink }}
+            </template>
+          </b-tab>
           <b-tab>
             <template #title>
               <span class="mr-1">รักษาหายทั้งหมด</span>
@@ -61,6 +72,7 @@
               {{ codeKitchenSink }}
             </template>
           </b-tab>
+          
         </b-tabs>
       </b-card-code>
     </div>
@@ -105,6 +117,7 @@ import TabalToDay from "./components/hi/TabalToDay";
 import TabalHi from "./components/hi/TabalHi";
 import TabalSuccess from "./components/hi/TabalSuccess";
 import NewHiUser from "./components/hi/NewHiUser";
+import TabalTenDay from "./components/hi/TabalTenDay";
 export default {
   components: {
     BCardCode,
@@ -133,7 +146,8 @@ export default {
     BTabs,
     BTab,
     BarChart,
-    NewHiUser
+    NewHiUser,
+    TabalTenDay
   },
   data() {
     return {
@@ -141,6 +155,7 @@ export default {
       totalRowsNew:0,      
       totalRowsFull:0,      
       totalRowsSuccess:0,      
+      totalRowsTenDay:0,      
       codeKitchenSink,
     };
   },
@@ -148,6 +163,7 @@ export default {
     this.getHiNew()
     this.getHi()
     this.getHiSuccess()
+    this.getHiTenDay()
   },
 
   methods: {
@@ -168,7 +184,7 @@ export default {
             Authorization: `Bearer ${useJwt.getToken()}`,
           },
         }).then((res) => {
-          console.log(res.data)
+          console.log(res.data)          
           location.reload();
       })
     },
@@ -181,6 +197,17 @@ export default {
         })
         .then((res) => {          
           this.totalRowsFull = res.data.length;
+        });
+    },
+    getHiTenDay() {
+      this.$http
+        .get(`api/v1/covid/hi-ten-day/${getUserData().organigation}`, {
+          headers: {
+            Authorization: `Bearer ${useJwt.getToken()}`,
+          },
+        })
+        .then((res) => {                        
+            this.totalRowsTenDay = res.data.length;          
         });
     },
     getHiSuccess() {
