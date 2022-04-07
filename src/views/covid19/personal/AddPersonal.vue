@@ -67,20 +67,30 @@
 
           <b-col cols="12" md="4">
             <b-form-group label="เพศ" label-for="sex">
-              <b-form-select v-model="form.sex" :options="ob_sex" />
+               <v-select                
+                :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"                
+                :options="ob_sex"
+                label="name"
+                @input="(value)=>{form.sex = value.sexcode}"
+                />
             </b-form-group>
           </b-col>
 
-          <b-col cols="12" md="4">
+          <!-- <b-col cols="12" md="4">
             <b-form-group label="วันเกิด" label-for="brithday">
               <flat-pickr
                 class="form-control"
-                :config="{ dateFormat: 'Y-m-d' }"
+                :config="config"
                 placeholder="YYYY-MM-DD"
                 v-model="form.birthday"
               />
             </b-form-group>
-          </b-col>
+          </b-col>          -->
+          <b-col cols="12" md="4">
+            <b-form-group label="อายุ" label-for="age">
+              <b-form-input v-model="form.age" name="age" type="number"/>
+            </b-form-group>
+          </b-col>         
 
           <b-col cols="12" md="4">
             <b-form-group label="สิทธิการรักษา" label-for="role">
@@ -170,6 +180,17 @@
                 v-model="form.swabtype"
                 :dir="$store.state.appConfig.isRTL ? 'rtl' : 'ltr'"                    
                 :options="obSwabType"
+              />
+            </b-form-group>
+          </b-col>
+          <!-- Field: Country -->
+          <b-col cols="12" md="6" lg="4">
+            <b-form-group label="วันที่ตรวจพบเชื้อ">
+              <flat-pickr
+                class="form-control"
+                :config="{ dateFormat: 'Y-m-d' }"
+                placeholder="YYYY-MM-DD"
+                v-model="form.swabdate"
               />
             </b-form-group>
           </b-col>
@@ -275,6 +296,7 @@
 
 <script>
 import BCardCode from "@core/components/b-card-code/BCardCode.vue";
+import {Thai} from 'flatpickr/dist/l10n/th.js';
 import { required, email } from "@validations";
 import {
   BRow,
@@ -288,7 +310,8 @@ import {
   BFormFile,
   BAvatar,
   BFormSelect,
-  BFormCheckbox
+  BFormCheckbox,
+  BFormDatepicker
 } from "bootstrap-vue";
 import flatPickr from "vue-flatpickr-component";
 import { ref } from "@vue/composition-api";
@@ -313,10 +336,16 @@ export default {
     BFormCheckboxGroup,
     BButton,
     BFormSelect,
-    ValidationProvider, ValidationObserver, BFormCheckbox
+    ValidationProvider, ValidationObserver, BFormCheckbox, BFormDatepicker
+
   },
   data() {
     return {
+      config: {
+        dateFormat: 'Y-m-d',
+        locale: Thai, // locale for this instance only   
+        
+      },
       userOrgan: getUserData().organigation,
       obSwabType:["ATK","RT-PCR"],
       obDepartment:["HI_CI","SI"],
@@ -335,20 +364,23 @@ export default {
         tmbpart: "",
         amppart: "",
         chwpart: "",
+        age:null,
         weight: null,
         height: null,
         bp: null,
         pr: null,
+        cur_dep: "",
         vstdate: null,
         dcdate: null,
         department:"",
         hospcode: "",
         swabtype:"",
+        swabdate: null,
         need_favi:"",
         authen_number: "",
         line_id: "",
       },
-      ob_sex: ["1", "2"],
+      ob_sex: [{name: 'ชาย',sexcode: '1'},{name: 'หญิง',sexcode: '2'}],
       ob_tmbpart: [],
       ob_amppart: [],
       ob_chwpart: [],
@@ -412,6 +444,7 @@ export default {
               }
             })       
           }
+          data.department == 'HI_CI' ? data.cur_dep = '075':data.cur_dep = '076'
           // return console.log(data)       
           formData.append("file", this.file);
           formData.append("data", JSON.stringify(data)); 

@@ -93,8 +93,8 @@
               :src="$store.state.service.urlImage + data.value"
             />
           </template>          
-          <template #cell(hospcode)="data">            
-            <b-badge variant="primary" v-if="!data.value"> กดยืนยันรักษาครบ </b-badge>
+          <template #cell(action)>            
+            <b-badge variant="primary"> กดยืนยันรักษาครบ </b-badge>
             <!-- basic modal -->            
           </template>
         </b-table>
@@ -219,8 +219,8 @@ export default {
         { key: "swabdate", label: "วันที่พบเชื้อ", sortable: true },
         // { key: "vstdate", label: "วันที่เริ่มรับบริการ", sortable: true },
         // { key: "dcdate", label: "วันที่สิ้นสุดบริการ", sortable: true },
-        { key: "hospcode", label: "หน่วยบริการ", sortable: true },
-        { key: "claim_code", label: "Authen" },
+        { key: "action", label: "ยืนยันรักษา", sortable: true },
+        { key: "hospcode", label: "รหัสหน่วยบริการ" },
         // { key: "line_id", label: "ไอดีไลน์" },
       ],
       items: [],     

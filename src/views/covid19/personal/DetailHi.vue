@@ -118,6 +118,10 @@
                   <feather-icon icon="Trash2Icon" class="mr-50" />
                   <span class="align-middle">ลบข้อมูล</span>
                 </b-button>
+                <b-button variant="outline-success" @click="pdfFinalHiCi" class="mx-1">
+                  <feather-icon icon="FileTextIcon" class="mr-50" />
+                  <span class="align-middle">Final HiCi</span>
+                </b-button>
                 <b-button
                   variant="outline-success"
                   @click="createPDF"
@@ -193,6 +197,7 @@ import jsPDF from "jspdf";
 import font from "@/service/font";
 import imageCertiport from "@/assets/images/covid/certiportCovid19.png";
 import {creatCertiport} from "@/service/certiport-covid"
+import {creatFinalHiCi} from "@/service/hi-ci-pdf"
 import XLSX from 'xlsx' // import xlsx
 
 export default {
@@ -298,6 +303,9 @@ export default {
     this.getVisit();
   },
   methods: {
+    async pdfFinalHiCi(){
+      await creatFinalHiCi(this.form)
+    },
     async createPDF() {
       await creatCertiport(this.form)
     },
