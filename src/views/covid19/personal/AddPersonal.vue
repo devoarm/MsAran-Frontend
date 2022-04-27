@@ -74,18 +74,7 @@
                 @input="(value)=>{form.sex = value.sexcode}"
                 />
             </b-form-group>
-          </b-col>
-
-          <!-- <b-col cols="12" md="4">
-            <b-form-group label="วันเกิด" label-for="brithday">
-              <flat-pickr
-                class="form-control"
-                :config="config"
-                placeholder="YYYY-MM-DD"
-                v-model="form.birthday"
-              />
-            </b-form-group>
-          </b-col>          -->
+          </b-col>         
           <b-col cols="12" md="4">
             <b-form-group label="อายุ" label-for="age">
               <b-form-input v-model="form.age" name="age" type="number"/>
@@ -267,8 +256,12 @@
               <b-form-checkbox v-model="form.need_favi" />
             </b-form-group>
           </b-col>
+          <b-col cols="12" md="6" lg="4">
+            <b-form-group label="Stapdown ?">
+              <b-form-checkbox v-model="form.stapdown" />
+            </b-form-group>
+          </b-col>
         </b-row>
-
         <b-row class="mt-2">
           <b-col>
             <b-button
@@ -317,6 +310,8 @@ import flatPickr from "vue-flatpickr-component";
 import { ref } from "@vue/composition-api";
 import vSelect from "vue-select";
 import { ValidationProvider, ValidationObserver } from "vee-validate";
+import bulma_calendar from "bulma-calendar/dist/components/vue/bulma_calendar.vue";
+
 import {  
   getUserData,  
 } from "@/auth/utils";
@@ -336,16 +331,11 @@ export default {
     BFormCheckboxGroup,
     BButton,
     BFormSelect,
-    ValidationProvider, ValidationObserver, BFormCheckbox, BFormDatepicker
+    ValidationProvider, ValidationObserver, BFormCheckbox, BFormDatepicker,bulma_calendar
 
   },
   data() {
-    return {
-      config: {
-        dateFormat: 'Y-m-d',
-        locale: Thai, // locale for this instance only   
-        
-      },
+    return {     
       userOrgan: getUserData().organigation,
       obSwabType:["ATK","RT-PCR"],
       obDepartment:["HI_CI","SI"],
@@ -377,6 +367,7 @@ export default {
         swabtype:"",
         swabdate: null,
         need_favi:"",
+        stapdown: "",
         authen_number: "",
         line_id: "",
       },
@@ -385,10 +376,18 @@ export default {
       ob_amppart: [],
       ob_chwpart: [],
       ob_pttype_name: [],
-      ob_hospital: []      
+      ob_hospital: [],      
     };
   },
+  computed: {
+    displayDate() {
+      if (!this.date[0] || !this.date[1]) return '- n/a -';
+      return this.date[0] + ' to ' + this.date[1];
+    }
+  },
   mounted() {
+    
+    
     this.getHospital()
     this.$http.get("api/v1/forms/ptt-type").then((res) => {
       this.ob_pttype_name = res.data.result      
@@ -411,9 +410,10 @@ export default {
       this.url = URL.createObjectURL(file);
     },
     async handleSubmit() {      
-      this.$refs.simpleRules.validate().then(async success => {
+      this.$refs.simpleRules.validate().then(async success => {        
         if (success) {
           this.form.need_favi = this.form.need_favi == false ? 0:1
+          this.form.stapdown = this.form.stapdown == false ? 0:1
           let data = this.form      
           let formData = new FormData();      
           await this.$http.post(`api/v1/forms/vue-address`,{tmbpart:this.form.tmbpart,amppart:this.form.amppart,chwpart:this.form.chwpart})
@@ -505,4 +505,6 @@ export default {
 <style lang="scss">
 @import "@core/scss/vue/libs/vue-flatpicker.scss";
 @import "@core/scss/vue/libs/vue-select.scss";
+
+
 </style>

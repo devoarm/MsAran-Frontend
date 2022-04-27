@@ -26,6 +26,7 @@
     "bcrypt": "^5.0.1",
     "bootstrap": "4.6.0",
     "bootstrap-vue": "2.21.1",
+    "bulma-calendar": "^6.1.17",
     "chart.js": "^2.9.4",
     "core-js": "3.8.1",
     "cors": "^2.8.5",

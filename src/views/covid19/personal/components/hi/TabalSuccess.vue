@@ -45,7 +45,7 @@
           </b-input-group>
         </b-form-group>
       </b-col>
-      <b-col md="6" class="my-1">
+      <b-col md="3" class="my-1">
         <b-form-group
           label="Filter"
           label-cols-sm="3"
@@ -68,6 +68,9 @@
             </b-input-group-append>
           </b-input-group>
         </b-form-group>
+      </b-col>
+      <b-col md="3" class="text-right">
+        <b-button variant="warning" @click="onExport">ดาว์นโหลดไฟล์ Excel</b-button>
       </b-col>
 
       <b-col cols="12">
@@ -127,6 +130,7 @@ import {
   BCard,
 } from "bootstrap-vue";
 import useJwt from "@/auth/jwt/useJwt";
+import XLSX from 'xlsx' // import xlsx
 import {  
   getUserData,  
 } from "@/auth/utils";
@@ -178,17 +182,7 @@ export default {
         // { key: "birthday", label: "วันเกิด" },
         //{ key: "pttype_name", label: "สิทธ์การรักษา" },
         { key: "pttype_authen", label: "สิทธิ", sortable: true },
-        { key: "mobile", label: "เบอร์โทรศัพท์" },
-        // { key: "addrpart", label: "ที่อยู่" },
-        // { key: "tmbpart", label: "ตำบล" },
-        // { key: "amppart", label: "อำเภอ" },
-        // { key: "chwpart", label: "จังหวัด" },
-        // { key: "weight", label: "น้ำหนัก" },
-        // { key: "height", label: "ส่วนสูง" },
-        // { key: "bp", label: "ความดัน" },
-        // { key: "pr", label: "อัตราการหายใจ" },
-        // { key: "swabdate", label: "วันที่พบเชื้อ", sortable: true },
-        // { key: "vstdate", label: "วันที่เริ่มรับบริการ", sortable: true },
+        { key: "mobile", label: "เบอร์โทรศัพท์" },      
         { key: "dcdate", label: "วันที่สิ้นสุดบริการ", sortable: true },
         { key: "hospcode", label: "หน่วยบริการ", sortable: true },
         { key: "claim_code", label: "Authen" },
@@ -212,6 +206,44 @@ export default {
     this.totalRows = this.items.length;
   },
   methods: {
+    onExport(){
+      let data = []
+      this.items.forEach(async (value) =>{
+        await data.push({
+          เลขบัตรประชาชน: value.cid,
+          ชื่อนามสกุล: value.fullname,
+          เพศ: (value.sex == 1?'ชาย': (value.sex ==2?'หญิง':null)),
+          วันเกิด: value.birthday,
+          ที่อยู่: value.addrpart,
+          ตำบล: value.tmbpart,
+          อำเภอ: value.amppart,
+          จังหวัด: value.chwpart,
+          ไอดีไลน์: value.line_id,
+          เบอร์โทรศัพท์: value.mobile,
+          วันที่ตรวจพบโควิด: value.swabdate,
+          ประเภทการตรวจ: value.swabtype,
+          รับยาFavi: value.need_favi==1? 'รับ':'ไม่รับ',
+          วันที่เริ่มรับบริการ: value.vstdate,
+          วันที่สิ้นสุดบริการ: value.dcdate,
+          authen_date: value.authen_date,
+          authen_number: value.authen_number,
+          claim_code: value.claim_code,          
+          น้ำหนัก: value.weight,
+          ส่วนสูง: value.height,          
+          bp: value.bp,
+          pr: value.pr,
+          pttype_authen: value.pttype_authen,
+          สิทธ์การรักษา: value.pttype_name,          
+          type_audit: value.type_audit,          
+          หน่วยบริการ: value.hospcode,
+        })
+      })
+      // console.log(this.items)
+      const dataWS = XLSX.utils.json_to_sheet(data)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, dataWS)
+      XLSX.writeFile(wb,'export.xlsx')
+    },
     myRowClickHandler(record, index) {
       this.$router.push(`/covid19-hi-detail/${record.id}`);
     },

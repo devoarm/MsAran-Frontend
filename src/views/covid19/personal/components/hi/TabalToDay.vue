@@ -45,7 +45,7 @@
           </b-input-group>
         </b-form-group>
       </b-col>
-      <b-col md="6" >
+      <b-col md="3" >
         <b-form-group
           label="Filter"
           label-cols-sm="3"
@@ -68,6 +68,9 @@
             </b-input-group-append>
           </b-input-group>
         </b-form-group>
+      </b-col>
+      <b-col md="3" class="text-right">
+        <b-button variant="warning" @click="onExport">ดาว์นโหลดไฟล์ Excel</b-button>
       </b-col>
 
       <b-col cols="12" class="mt-1">
@@ -236,6 +239,7 @@ import useJwt from "@/auth/jwt/useJwt";
 import { ValidationProvider, ValidationObserver } from "vee-validate";
 import flatPickr from 'vue-flatpickr-component'
 import vSelect from 'vue-select'
+import XLSX from 'xlsx' // import xlsx
 import {  
   getUserData,  
 } from "@/auth/utils";
@@ -337,6 +341,44 @@ export default {
     this.getHospital()  
   },
   methods: {
+    onExport(){
+      let data = []
+      this.items.forEach(async (value) =>{
+        await data.push({
+          เลขบัตรประชาชน: value.cid,
+          ชื่อนามสกุล: value.fullname,
+          เพศ: (value.sex == 1?'ชาย': (value.sex ==2?'หญิง':null)),
+          วันเกิด: value.birthday,
+          ที่อยู่: value.addrpart,
+          ตำบล: value.tmbpart,
+          อำเภอ: value.amppart,
+          จังหวัด: value.chwpart,
+          ไอดีไลน์: value.line_id,
+          เบอร์โทรศัพท์: value.mobile,
+          วันที่ตรวจพบโควิด: value.swabdate,
+          ประเภทการตรวจ: value.swabtype,
+          รับยาFavi: value.need_favi==1? 'รับ':'ไม่รับ',
+          วันที่เริ่มรับบริการ: value.vstdate,
+          วันที่สิ้นสุดบริการ: value.dcdate,
+          authen_date: value.authen_date,
+          authen_number: value.authen_number,
+          claim_code: value.claim_code,          
+          น้ำหนัก: value.weight,
+          ส่วนสูง: value.height,          
+          bp: value.bp,
+          pr: value.pr,
+          pttype_authen: value.pttype_authen,
+          สิทธ์การรักษา: value.pttype_name,          
+          type_audit: value.type_audit,          
+          หน่วยบริการ: value.hospcode,
+        })
+      })
+      console.log(this.items)
+      const dataWS = XLSX.utils.json_to_sheet(data)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, dataWS)
+      XLSX.writeFile(wb,'export.xlsx')
+    },
     select (address) {
       this.form.tmbpart = address.district
       this.form.amppart = address.amphoe
@@ -388,7 +430,7 @@ export default {
         })        
       }  
       // return console.log(data) 
-      this.$http.post(`api/v1/covid/add-hoscode-personal/${this.HiModal.id}`,data).then((res) => {
+      await this.$http.post(`api/v1/covid/add-hoscode-personal/${this.HiModal.id}`,data).then((res) => {
         console.log(res.data)
         if (res.data.status == 200) {
           this.$bvModal.hide("modal-hi-new");   
@@ -430,7 +472,7 @@ export default {
             Authorization: `Bearer ${useJwt.getToken()}`,
           },
         })
-        .then((res) => {
+        .then((res) => {          
           this.items = res.data;
           this.totalRows = res.data.length;          
         });

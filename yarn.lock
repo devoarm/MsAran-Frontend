@@ -2555,6 +2555,18 @@
   "resolved" "https://registry.npmjs.org/builtin-status-codes/-/builtin-status-codes-3.0.0.tgz"
   "version" "3.0.0"
 
+"bulma-calendar@^6.1.17":
+  "integrity" "sha512-v4uArP4cOZyyzEi6s9vHltvMaW/nTzCIV08O6YxodC3qsptp3DaYoYbrjteLg+UKhQpId2PnRJtOkLLJTWUn9g=="
+  "resolved" "https://registry.npmjs.org/bulma-calendar/-/bulma-calendar-6.1.17.tgz"
+  "version" "6.1.17"
+  dependencies:
+    "date-fns" "^2.21.3"
+
+"bulma@^0.9.3":
+  "integrity" "sha512-0d7GNW1PY4ud8TWxdNcP6Cc8Bu7MxcntD/RRLGWuiw/s0a9P+XlH/6QoOIrmbj6o8WWJzJYhytiu9nFjTszk1g=="
+  "resolved" "https://registry.npmjs.org/bulma/-/bulma-0.9.3.tgz"
+  "version" "0.9.3"
+
 "bytes@1":
   "integrity" "sha1-NWnt6Lo0MV+rmcPpLLBMciDeH6g="
   "resolved" "https://registry.npmjs.org/bytes/-/bytes-1.0.0.tgz"
@@ -3648,7 +3660,7 @@
   dependencies:
     "assert-plus" "^1.0.0"
 
-"date-fns@^2.0.0-beta.4":
+"date-fns@^2.0.0-beta.4", "date-fns@^2.21.3":
   "integrity" "sha512-ovYRFnTrbGPD4nqaEqescPEv1mNwvt+UTqI3Ay9SzNtey9NZnYu6E2qCcBBgJ6/2VF1zGGygpyTDITqpQQ5e+w=="
   "resolved" "https://registry.npmjs.org/date-fns/-/date-fns-2.25.0.tgz"
   "version" "2.25.0"
