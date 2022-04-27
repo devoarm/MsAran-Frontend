@@ -226,15 +226,17 @@ export default {
             role: this.user.role,
             organigation: this.user.organigation,
           };
-          this.$http.put(`api/v1/auth/${this.uId}`, data).then((res) => {
+          this.$http.put(`api/v1/auth/${this.uId}`, data).then((res) => {            
             if (res.data.status == 200) {
               this.$swal({
                 icon: "success",
                 title: "สำเร็จ",
                 showConfirmButton: false,
                 timer: 1000,
-              }).then(() => {
-                this.$router.push("/users");
+              }).then(async () => {
+                await this.getUser()
+                await localStorage.setItem("userData", JSON.stringify(this.user));
+                window.location.href = '/users';                
               });
             } else {
               this.$swal({
@@ -255,8 +257,7 @@ export default {
             Authorization: `Bearer ${useJwt.getToken()}`,
           },
         })
-        .then((res) => {
-          console.log(res.data);
+        .then((res) => {                    
           this.user = res.data;
         });
     },

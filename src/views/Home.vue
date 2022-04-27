@@ -3,11 +3,31 @@
     <b-card title="รายงานผู้ป่วย HI และ SI📣">
     <canvas id="myChart" width="100" height="30"></canvas>
     </b-card>
+    <b-row class="match-height">
+      <b-col lg="4">
+        <b-row class="match-height">
+          <!-- Bar Chart - Orders -->
+          <b-col
+            lg="6"
+            md="6"
+            cols="6"
+          >
+            <h1>One</h1>
+          </b-col>         
+        </b-row>
+      </b-col>
+
+      <!-- Revenue Report Card -->
+      <b-col lg="6">
+          <h1>TWO</h1>
+      </b-col>
+      <!--/ Revenue Report Card -->
+    </b-row>
   </div>
 </template>
 
 <script>
-import { BCard, BCardText, BLink } from "bootstrap-vue";
+import { BCard, BCardText, BLink, BRow, BCol} from "bootstrap-vue";
 import Vue from "vue";
 import Chart from "chart.js";
 
@@ -16,6 +36,8 @@ export default {
     BCard,
     BCardText,
     BLink,
+    BRow,
+    BCol
   },
 
 data(){

@@ -37,18 +37,11 @@
             class="badge-minimal"
             badge-variant="success"
           />
-        </template>
-        <b-dropdown-item link-class="d-flex align-items-center">
-          <!-- <b-link :to="`detail-user/${user.id}`">
-            <feather-icon size="16" icon="UserIcon" class="mr-50" />
-            <span>ข้อมูลส่วนตัว</span>
-          </b-link> -->
-          <router-link :to="`detail-user/${user.id}`">
-            <feather-icon size="16" icon="UserIcon" class="mr-50" />
-            <span>ข้อมูลส่วนตัว</span>
-          </router-link>
-        </b-dropdown-item>
-
+        </template>          
+            <b-dropdown-item @click="nextPage(`/detail-user/${user.id}`)" link-class="d-flex align-items-center">          
+                <feather-icon size="16" icon="UserIcon" class="mr-50" />
+                <span>ข้อมูลส่วนตัว</span>
+            </b-dropdown-item>          
         <b-dropdown-divider />
 
         <b-dropdown-item
@@ -103,6 +96,9 @@ export default {
     this.user = JSON.parse(localStorage.getItem("userData"));
   },
   methods: {
+    nextPage(path){
+      this.$router.push(path)
+    },
     isLogout() {
       localStorage.removeItem("accessToken");
 
